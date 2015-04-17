@@ -1,0 +1,70 @@
+---
+title: "AnalyticsEdge-Unit1-HW"
+author: "Sanyamc"
+date: "Tuesday, April 14, 2015"
+output: html_document
+---
+
+
+    Analytics Edge
+========================
+This is continued report/notes from Chapter 1 assignments.
+
+Stock Markets
+----------------------
+Here we are looking at monthly stocks data from 5 companies, IBM, GE, Coke, PnG,Boeing from 1970-2009
+
+Lets take a look at summary of stock prices for these companies. 
+
+
+
+```{r}
+ibm=read.csv('AnalyticsEdge/IBMStock.csv')
+ge=read.csv('AnalyticsEdge/gestock.csv')
+png=read.csv('AnalyticsEdge/procterGamblestock.csv')
+boeing=read.csv('AnalyticsEdge/boeingstock.csv')
+coke=read.csv('AnalyticsEdge/cocacolastock.csv')
+
+ibm$Date=as.Date(ibm$Date,'%m/%d/%y')
+ge$Date=as.Date(ge$Date,'%m/%d/%y')
+coke$Date=as.Date(coke$Date,'%m/%d/%y')
+png$Date=as.Date(png$Date,'%m/%d/%y')
+boeing$Date=as.Date(boeing$Date,'%m/%d/%y')
+
+summary(ibm)
+summary(ge)
+summary(coke)
+summary(boeing)
+summary(png)
+
+ibm$Date[which.max(ibm$StockPrice)]
+
+```
+
+Checkout the following ***line plot*** below
+- Note the multiple geoms
+- Note the date breaks
+- Note the ***vertical line***
+```{r}
+
+ggplot(aes(x=Date,y=StockPrice),data=coke)+geom_line(data=png,aes(color='PnG'))+geom_line(data=ibm,aes(color='IBM',colour='black'))+geom_line(data=boeing,aes(color='Boeing'))+geom_line(data=ge,aes(color='GE'))+geom_line(aes(color='Coke'))+scale_x_date(breaks="2 year")+geom_vline(xintercept=as.numeric(as.Date('2000-03-01')),alpha=1/4,linetype=2)
+
+```
+Lets observe the data withing 5 year period.
+```{r}
+
+ggplot(aes(x=Date,y=StockPrice),data=coke)+geom_line(data=png,aes(color='PnG'))+geom_line(data=ibm,aes(color='IBM',colour='black'))+geom_line(data=boeing,aes(color='Boeing'))+geom_line(data=ge,aes(color='GE'))+geom_line(aes(color='Coke'))+scale_x_date(limits=c(as.Date("2004-01-01"),as.Date("2006-01-01")))+geom_vline(xintercept=as.numeric(as.Date('2000-03-01')),alpha=1/4,linetype=2)+scale_y_discrete(breaks=seq(0,200,5))
+
+```
+
+Lets calculate the mean data of IBM by month across all years and then identify when IBM had historically higher stock prices than other months.
+
+```{r}
+tapply(ibm$StockPrice,months(ibm$Date),mean)
+
+tapply(ge$StockPrice,months(ge$Date),mean)
+
+tapply(png$StockPrice,months(png$Date),mean)
+
+```
+

@@ -1,0 +1,105 @@
+---
+title: "Unit1-EmploymentStats"
+author: "Sanyamc"
+date: "Tuesday, April 14, 2015"
+output: html_document
+---
+```{r}
+cps<-read.csv('AnalyticsEdge/CPSData.csv')
+mac<-read.csv('AnalyticsEdge/MetroAreaCodes.csv')
+cc<-read.csv('AnalyticsEdge/CountryCodes.csv')
+
+summary(cps)
+str(cps)
+
+```
+
+Lets sort the regions by number of Interviews in the region and state
+
+```{r}
+
+sort(table(cps$Region))
+sort(table(cps$State))
+
+```
+
+What proportions of interviewees are citizens of US
+
+```{r}
+table(cps$Citizenship)
+```
+
+Whats the distribution of Race w.r.t Hispanic
+
+```{r}
+table(cps$Race,table$Hispanic)
+```
+
+Evaluate Missing values
+- Checkout missing values based on the region, sex, Age, Citizenship, or none.
+```{r}
+table(cps$Region,is.na(cps$Married))
+table(cps$Sex,is.na(cps$Married))
+
+table(cps$Age,is.na(cps$Married))
+```
+
+- Lets explore another variable, known as MetroAreaCode and find the interviwees living in non-metro Area
+```{r}
+table(cps$State,is.na(cps$MetroAreaCode))
+table(cps$Region,is.na(cps$MetroAreaCode))
+```
+
+Now we have been calculating the proportions using the table command and then manually computing the values.
+Instead we can use the ***mean*** of 0 and 1 and that would give use the  right value.
+
+Follow along to understand :)
+```{r}
+sort(tapply(is.na(cps$MetroAreaCode),cps$State,mean))
+```
+
+Merging data from other dictionaries
+---------------------------------------------------
+```{r}
+cps=merge(cps,mac,by.x="MetroAreaCode",by.y="Code",all.x=TRUE)
+summary(cps)
+
+```
+
+Checkout the new MetroArea Columns above. In the function above all.x=TRUE means keeps the rows even if merge don't match. In other words, its a left outer join instead of inner join.
+
+Lets use tapply method to calcuate the proportions and use this new column
+- Identify the interviewers from each area
+- Identify the proportions of MetroArea with Hispanic population
+- Identify the proportions of Asian distribution 
+- Identify the area which has no high school education
+
+```{r}
+table(cps$MetroArea)
+
+sort(tapply(cps$Hispanic,cps$MetroArea,mean))
+
+tapply(cps$Race=='Asian',cps$MetroArea,mean)
+
+sort(tapply(cps$Education=="No high school diploma",cps$MetroArea,mean,na.rm=TRUE))
+
+```
+
+Now lets merge the country codes data
+- What proportions of interviewees from NY area have country of birth that is not USA
+- Which metro area has largest number of interviewees with a country of birth in India.
+- Use tapply, when I can, we can easily sort it. Remember to do na.rm==TRUE for that.
+
+```{r}
+cps=merge(cps,cc,by.x="CountryOfBirthCode",by.y="Code",all.x=TRUE)
+summary(cps)
+
+sort(tapply(cps$Country!="United States",cps$MetroArea,mean,na.rm=TRUE))
+
+sort(tapply(cps$Country=="India",cps$MetroArea,sum,na.rm=TRUE))
+
+```
+
+
+
+

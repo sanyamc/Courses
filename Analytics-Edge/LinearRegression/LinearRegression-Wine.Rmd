@@ -1,0 +1,139 @@
+---
+title: "AnalyticsEdge-LinearRegression"
+author: "Sanyamc"
+date: "Tuesday, April 14, 2015"
+output: html_document
+---
+
+Linear Regression
+=============================
+
+This chapter outlines the Linear regression and how to compute that in R.
+
+**Lets get started**
+
+Boredaux wine are famous for its quality. They are french wines which are high in demand. The method of producing these wines are roughly the same however their price differ from year to year.
+
+Here we are trying to become wine experts without tasting a drop of wine. We will try to predict the quality of wine(***dependent variable***) from other variables ***independent variables***
+
+Just like harvard prof we are going to analyze the data from 1952-1978 and have around 4 variables, the harvest rain, winter rain, Age of Wine and avg. growing season temp.
+
+
+One variable Linear Regression
+-----------------------------------
+- Predicting the dependent variable using a linear equation involving one independent variable.
+- Error is actual val - predicted val. One method of predicting how good our model is to calculate ***SSE***.
+- However SSE's units are hard to understand as its squared AND dependent on n, as n increases SSE might increase. So a better metric is Root Mean Squared Error(RMSE) i.e. divide the SSE by n and sqrt.
+- There is another measure which is R squared. It's useful as it measure the model to a baseline model i.e. it compares the best to worst (avg. y for all x). It is computed by computing SSEs for both baseline and best model then dividing 1-(best/baseline). Closer to 1 is a great model and closer to 0 is poor. However that really depends on the problem. In some cases low Rsq. could be a great model.
+- For baseline model the SSE is also known as SST (Total Sum of Squares)
+
+
+Multi-variable linear regression
+----------------------------------------
+- In the previous section we considered only one independent variable.
+However we should probably use many independent variables.
+- Not all variables should be used as this can cause overfitting, which might have higher Rsquared but might not perform well on unseen data. This might be due to interactions between independent variables.
+- Example of age, and population because age and population are related.
+- Remember adding more variables WILL NOT decrease Rsquared as its between 0 and 1.
+
+Lets analyze some data here. Lets load the training data wine.csv and test data wine_test.csv
+
+```{r}
+
+wine=read.csv('E:/github/Courses/Analytics-Edge/DataSets/wine.csv')
+winet=read.csv('E:/github/Courses/Analytics-Edge/DataSets/wine_test.csv')
+
+summary(wine)
+str(wine)
+              
+
+```
+Lets create a model using this data. We'll predict Price with AGST
+
+```{r}
+model1 <-lm(Price~AGST,data=wine)
+summary(model1)
+```
+
+In the output above We have Adjusted R2 and Multiple R2. This first variable will DECREASE if we add an independent variable that doesn't help the model. However Multiple R2 will increase always as we said above.
+
+- Estimate is the coeffecient. So if coeffecient is close to 0 or 0 it is not helpful in the model. Std. Error    
+  is the measure of how much coeff. is likely to vary
+- Std error is the measure which tells how likely the coeffecient is likely to vary.
+- t value (Absolute) is estime/stdError, so higher it is, better is the model for those variables.
+- Finally Probability of the coeffecient being 0. So closer that is to 0 more significant the variable becomes.
+
+Easiest way to determine if the variable is significant is to look at the *. Period or dot is something which is somewhat significant.
+
+Now lets also compute the SSE
+
+```{r}
+SSE=sum(model1$residuals^2)
+summary(SSE)
+```
+
+Lets create model with more variables (AGST and Harvest Rain)
+
+```{r}
+model2<-lm(Price~AGST+HarvestRain,wine)
+summary(model2)
+SSE=sum(model2$residuals^2)
+```
+
+As we can see that R2 is better so this variable might have helped 
+
+Now lets create a model with all the variables
+
+```{r}
+model3<-lm(Price~AGST+HarvestRain+Age+FrancePop+WinterRain,data=wine)
+summary(model3)
+SSE<-sum(model3$residuals^2)
+
+```
+
+Given the lack of significance of Age and France population, so lets remove the variables ***ONE BY ONE***
+```{r}
+model4<-lm(Price~AGST+HarvestRain+Age+WinterRain,data=wine)
+summary(model4)
+SSE<-sum(model3$residuals^2)
+```
+Now we can see that Age is ***significant*** variable due to ***multi-coliniearity***
+
+What is correlation?
+It measures linear relation between 2 variables. A cor. of -1, 0 or 1 means negative, NO or positive linear relationship. For e.g. between Age of wine and France's population there is a -ve cor
+It is computed using cor
+
+```{r}
+cor(wine$Age,wine$FrancePop)
+cor(wine)
+```
+Above we can cor between all variables.
+
+So as we can see that we do have a multi-coliniearity problem between 2 independent variables.
+
+There is no cutoff list of what makes a correlation too high but in general cor of > 0.7 or <-0.7 is a cause of concern(between 2 independent vars, dependent vs Independent is a good thing)
+
+So we have concluded that we should remove variable ONE BY ONE to avoid loosing the variable due to multi-colinearity(If we have removed Age and France pop together we would have got a smaller R2)
+
+Our model had an R2 of 0.83 which suggests that its a good model. So lets test our model on test data.
+
+Accuracy from test data is called sample accuracy using ***predict***
+
+Lets compare the model using test data
+```{r}
+str(winet)
+predicted=predict(model4,winet)
+```
+We can see the outcome from this data model. Now lets compute the R^2 for this data set
+
+```{r}
+SSE=sum((winet$Price-predicted)^2)
+SST = sum((winet$Price-mean(wine$Price))^2)
+R2 = 1-(SSE/SST)
+```
+Note that our SST is calculated by using mean from ***training set***. As its always going to predict the mean value for all x.
+As we can see R^2 is 0.79.
+
+Ultimately we want our model R^2 **and** test R^2 to be high. Also note that test R^2 could be high! ***why*** because SSE could be higher or worse than SST from training set.
+
+Although the test data was relatively small but we had very high R^2. Additionally this simple yet powerful model helped people like Ashenfelter to predict the price and in few cases outdid the prediction of Wine expert. We can clearly see the benefits of Analytics Edge and should get excited by it!

@@ -1,0 +1,156 @@
+---
+title: "Analytics Edge"
+author: "Sanyamc"
+date: "Sunday, April 12, 2015"
+output: html_document
+---
+
+    Analytics Edge
+========================
+
+This course is all about learning the techniques to analyze and model data using many techniques out there. This is in many ways an introductory course as this course doesn't presume any mathematical background like high school maths etc.
+
+Lets get started!
+
+Some great examples of data analysis, machine learning:
+
+***IBM Watson: Playing Jeopardy***
+  - A machine with 3000 Processors and access to unstructured data. It uses many algorithms to increase accuracy and confidence. (Imagine a machine with 3000 processor is somewhat like a human, Imagine how powerful a human brain is!!!) 
+
+***Eharmony website:Suggesting matches***
+	- This website accounts for about 4% of US marriages in 2012. It asks around 350 questions and perform a linear regression and optimization, this generates a list of selected users. Edge in this website is that it leverages data pretty well to select profiles for the user.
+
+***Farmington Heart Study:Finding Heart attack causes***
+	- By far one of the most imp. Study in modern medicine. Most of what we know about heart attack is due to this study. Based on consistent study and physical traits over 10 years and using regression model, it was able to predict weather someone will develop a heart disease or not.
+	For e.g. it provided sufficient evidence to lower blood pressure and development of drugs to achieve the same. And finally it created a model to predict the patient's heart health.
+	
+***D2Hawkeye study:Analyzing medical docs***
+	- Instead of a human going through the records and sifting through the data. They created software to analyze patient's records and create a predictive model to categorize the patient in high risk or other categories.
+  
+Lets take a look at data provided by USDA and Identify the row which has 
+maximum totalFat
+
+```{r}
+usda=read.csv('analyticsEdge/usda.csv')
+names(usda)
+which.max(usda$TotalFat)
+
+```
+
+Lets create a new column/variable in the data set which represent high
+sodium value.Do the same for fat, carbs, protein too
+- Checkout the use of **as.numeric** below
+- Most functions have ** na.rm ** to remove NAs from data.
+
+```{r}
+usda$highSodium<-usda$Sodium>mean(usda$Sodium,na.rm=TRUE)
+usda$highSodium<-as.numeric(usda$highSodium)
+
+usda$highProtein<-as.numeric(usda$Protein>mean(usda$Protein,na.rm=TRUE))
+usda$highCarbs<-as.numeric(usda$Carbohydrate>mean(usda$Carbohydrate,na.rm=TRUE))
+usda$highFat<-as.numeric(usda$TotalFat>mean(usda$TotalFat,na.rm=TRUE))
+
+```
+
+Lets find the relationship between the variable using table and tapply cmd
+
+```{r}
+table(usda$highSodium,usda$highFat)
+```
+
+The table has highSodium on left side and highFat on right side.
+
+**tapply** method
+
+- Identify the avg. protein content in Iron food contents
+- Identify the max vitaminC for different carb types.
+- Identify the vitaminC for different carb types.
+
+```{r}
+tapply(usda$Iron,usda$highProtein,mean,na.rm=TRUE)
+tapply(usda$VitaminC,usda$highCarbs,max,na.rm=TRUE)
+tapply(usda$VitaminC,usda$highCarbs,summary,na.rm=TRUE)
+```
+
+As we can see that vitamin C values are on avg. higher for high carbs 
+foods.
+
+In other words, the tapply method groups the data by second argument and finds the stat(third arg) for the vector(first arg)
+
+**Lets use the above knowledge to analyze some data**
+
+Starting with the crime data set provided for the city of Chicago for property theft
+
+- R doesn't really recognize the date format. SO we need to convert it.
+- ***summary*** is really useful. Not just for the table but also for the a column too! Checkout the dateconvert summary.
+- Extract Weekday and Month from the date and convert the date to dateconvert.Checkout the **weekdays** and **months** functions.
+
+```{r}
+mtv=read.csv('AnalyticsEdge/mvtWeek1.csv')
+str(mtv)
+summary(mtv)
+DateConvert = as.Date(strptime(mtv$Date, "%m/%d/%y %H:%M"))
+summary(DateConvert)
+
+mtv$month=months(DateConvert)
+mtv$weekday=weekdays(DateConvert)
+mtv$Date= DateConvert
+
+```
+Lets explore the month and day variables and try to answer questions 
+- Which months had max and which day has max thefts occured.
+- Which month had max thefts when arrest was made.
+- Checkout the table on ***two variables***, gives a nice grouping.
+```{r}
+table(mtv$month)
+table(mtv$weekday)
+table(mtv$Arrest,mtv$month)
+```
+
+Distribution of Crime trends over time
+---------------------------------------------------
+
+- Simple histogram of thefts over years
+```{r}
+library(ggplot2)
+ggplot(aes(x=Year,y=..count..),data=mtv)+geom_histogram(fill='yellow')+
+  scale_x_continuous(breaks=seq(2000,2012,1))
+```
+- Lets see how the arrests have been made over time
+```{r}
+ggplot(aes(y=Date,x=factor(Arrest)),data=mtv)+geom_boxplot()
+
+```
+Now lets answer few questions based on the data
+- For how many proportions of thefts were the arrests made in 2001.
+- Identify the top 5 locations to allocate the resources.
+- Checkout the use of ***sort*** function
+- Subset the top5 locations; checkout the use of ***%in%***. We could have 
+also done the subset and using | there.
+- ***Refresh*** the LocationDescription Variable.
+
+```{r}
+table(mtv$Arrest,mtv$Year)
+sort(table(mtv$LocationDescription),decreasing=TRUE)
+TopLocations = c("STREET", "PARKING LOT/GARAGE(NON.RESID.)", "ALLEY", "GAS STATION", "DRIVEWAY - RESIDENTIAL")
+
+Top5 = subset(mtv, LocationDescription %in% TopLocations)
+
+#R remembers the locationvariable from original dataset hence we need to #refresh it further
+Top5$LocationDescription = factor(Top5$LocationDescription)
+
+```
+
+- Which day of the week does the most thefts happen at a gas station
+- Which has most  arrest for a location
+
+```{r}
+table(Top5$Arrest,Top5$LocationDescription)
+table(Top5$weekday,Top5$LocationDescription)
+```
+
+Conclusion
+----------------------
+- Really enjoyed looking at the data set and answer some logical questions which can actually help answer from the data.
+- Asking better questions is the ***key*** to get the info out of the data.
+- Used table cmd in detail.
