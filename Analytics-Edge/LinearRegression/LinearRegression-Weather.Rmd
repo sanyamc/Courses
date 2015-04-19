@@ -1,0 +1,132 @@
+---
+title: "LinearRegression-Weather"
+author: "Sanyamc"
+date: "Saturday, April 18, 2015"
+output: html_document
+---
+
+Homework 1 on Weather data
+=================================
+
+File climate change contains data from 1983-2008. Lets load it and see what it has.
+
+```{r}
+climate<-read.csv("e:\\github\\courses\\Analytics-Edge\\datasets\\climate_change.csv" )
+summary(climate)
+str(climate)
+```
+
+Lets create our model depicting temp. after separating the data into training and test set.
+
+```{r}
+ctrain<-subset(climate,climate$Year<=2006)
+ctest<-subset(climate,climate$Year>2006)
+
+model1<-lm(Temp~MEI+CO2+CH4+N2O+CFC.11+CFC.12+TSI+Aerosols,data=ctrain)
+summary(model1)
+```
+Few observations:
+- R2 is high
+- CH4 should be removed.
+- CFC.11 and N2O is -vely related to Temp. which doesn't sound intuitivly correct as these are green house gases and contribute to capture heat from sun. Hence some multi coliniearity going on here. So let compute the ***cor*** with N20 here
+
+```{r}
+cor(ctrain)
+model2<-lm(Temp~MEI+N2O+TSI+Aerosols,data=ctrain)
+summary(model2)
+summary(model1)
+```
+So R provides an ability to automate the process of building models based on different variables using the step function. This is based on AIC http://en.wikipedia.org/wiki/Akaike_information_criterion
+Which mainly picks the best model out of given models on a data set
+
+```{r}
+
+out<-step(model1)
+summary(out)
+
+```
+
+It is interesting to note that **step** function doesn't account for colliniearity of the variables.
+
+Now lets test the data
+```{r}
+temp<-predict(out,ctest)
+SSE<- sum((ctest$Temp-temp)^2)
+SST<- sum((mean(ctrain$Temp)-ctest$Temp)^2)
+R2<- 1-(SSE/SST)
+```
+
+
+Homework on Flu Data
+====================================
+
+```{r}
+
+flutrain<-read.csv("e:\\github\\courses\\Analytics-Edge\\datasets\\flutrain.csv" )
+summary(flutrain)
+ which.max(flutrain$ILI)
+flutrain$Week[303]
+```
+
+```{r}
+library('ggplot2')
+ggplot(aes(x=ILI),data=flutrain)+geom_histogram()
+
+```
+As we can see from above its right skewed. When we want to predict this typeof data its useful to predict its log so that small number of large values don't have undue effect on it.
+
+```{r}
+
+ggplot(aes(x=log(ILI),y=Queries),data=flutrain)+geom_point()+geom_smooth()
+
+```
+There seems to be a strong cor in the above data.
+
+Lets create a LM for it
+
+```{r}
+model1<-lm(log(ILI)~Queries,data=flutrain)
+summary(model1)
+cor(log(flutrain$ILI),flutrain$Queries)
+
+```
+
+There is a formulae for cor and R2 ; R2=cor^2
+
+Lets predict the values
+
+```{r}
+flutest<-read.csv("e:\\github\\courses\\Analytics-Edge\\datasets\\flutest.csv" )
+outcome<-exp(predict(model1,flutest))
+SSE<-sum((outcome-flutest$ILI)^2)
+SST<-sum((mean(flutrain$ILI)-flutest$ILI)^2)
+R2<-(1-(SSE/SST))
+summary(R2)
+RMSE<-sqrt(SSE/length(flutest$ILI))
+```
+
+Note we use ***exp*** for predicting the values cause model predicts the log
+
+***RelativeError*** = (actual-estimated)/actual
+
+Time series data in linear model
+======================================
+
+As we have time series, it is quite possible that older values can help predict newer values and also be realistic about availability of historical data. To play with time series data there is a useful library available called as ***zoo***.
+
+```{r}
+install.packages('zoo')
+library('zoo')
+
+ili<-lag(zoo(flutrain$ILI),-2,na.pad=TRUE)
+flutrain$ILILag<-coredata(ili)
+ggplot(aes(x=log(flutrain$ILI),y=log(flutrain$ILILag)),data=flutrain)+geom_point()
+```
+As we can see there is a strong positive relation between historical and current data. 
+
+```{r}
+flut<-lm(log(flutrain$ILI)~log(flutrain$ILILag)+Queries,data=flutrain)
+summary(flut)
+
+As we can see that R2 is really high so it would be good to add this to our model. For that we need to add the variable to our test data.
+

@@ -1,0 +1,78 @@
+---
+title: "LinearRegression-Basketball"
+author: "Sanyamc"
+date: "Saturday, April 18, 2015"
+output: html_document
+---
+
+Moneyball --> Basketball
+============================
+
+This is part of recitation for Linear regression where we are going to explore Basketball team's data sets and apply moneyball techniques there.
+
+Lets load both the available datasets basketball train and basketball test in R 
+
+```{r}
+nba_train<-read.csv('E:\\github\\Courses\\Analytics-Edge\\DataSets\\nba_train.csv')
+nba_test<-read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\nba_test.csv")
+
+str(nba_test)
+```
+As we can see there are tons of variables here.
+
+Our goal is to find out how many wins a team needs to win in order to make the playoffs.
+
+```{r}
+table(nba_train$W,nba_train$Playoff)
+
+```
+As we can see from the table command, a team that wins about 42 games is gets a playoffs spot. i.e. in the past team that wins 42 games have been to playoffs 29 times and not in playoffs around 8 times.
+
+Just like the runs difference, we are going to use the points difference and see the linear relation between the two.
+
+```{r}
+nba_train$pd<-nba_train$PTS-nba_train$oppPTS
+library('ggplot2')
+ggplot(aes(x=W,y=pd),data=nba_train)+geom_point()
+```
+
+Obviously there is a **strong** linear relation between points diff and wins. Lets create a linear model
+```{r}
+model1<-lm(W~pd,nba_train)
+summary(model1)
+```
+
+As we can see that this a good model as R2 is close to 1.
+Our linear regression eq is W = 41+.03259(pd)
+
+In terms of points difference for a team making playoffs(winning 42 games) team needs to have 1/.0326 pointsdiff which comes out to be around 31.
+
+Now the PD largly depends on PS and PC
+```{r}
+model1<-lm(PTS~X2PA+X3PA+FTA+ORB+DRB+AST+STL+BLK+TOV,data=nba_train)
+summary(model1)
+```
+
+Now lets remove the variables which are less sig. From the above table that would be TOV (p very high)
+
+```{r}
+model2<-lm(PTS~X2PA+X3PA+FTA+ORB+DRB+AST+STL+BLK,data=nba_train)
+summary(model2)
+model3<-lm(PTS~X2PA+X3PA+FTA+ORB+DRB+AST+STL,data=nba_train)
+summary(model3)
+```
+
+Although R^2 remained the same but other measures like Root mean squared error could have increased so check them out before sticking with the new model.
+
+Now using this model3 lets make prediction for 2012-2013 season in the test data set.
+
+```{r}
+outcome<-predict(model3,nba_test)
+summary(outcome)
+SSE<-sum((nba_test$PTS-outcome)^2)
+SST<-sum((nba_test$PTS-mean(nba_train$PTS))^2)
+R2<-1-(SSE/SST)
+RMSE<-sqrt(SSE/length(nba_test$PTS))
+```
+As we can see that our R2 is pretty high and our RMSE but not too bad making an avg. error of about 196 points 
+

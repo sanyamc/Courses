@@ -1,0 +1,115 @@
+---
+title: "LinearRegression-Moneyball"
+author: "Sanyamc"
+date: "Friday, April 17, 2015"
+output: html_document
+---
+
+
+The Moneyball Story
+=====================
+
+This section is about the famous Moneyball story of A's. How taking an analytical approach they were able to identify undervalued players.
+
+Analysis suggested that some skills are undervalued and some skills are overvalued. A's premise was that if they could detect undervalued skills using Analytics they could find players at a bargain.
+
+Goal of the teams usually is to make to playoffs. Goal of A's was to get to playoffs using Analytics.
+
+
+So statistician at A's came up that the team needs to score 135 runs more than they allow to win 95 games.
+
+```{r}
+baseball = read.csv('E:/github/Courses/Analytics-Edge/datasets/baseball.csv')
+str(baseball)
+summary(baseball)
+
+```
+
+So we wanna include data which was < 2002 to replicate the findings of moneyball. Lets also create a new column for Run deficit since we are going to use that to predict the wins.
+
+Lets create a scatter plot to see if there is relationship between Run diff and Wins.
+
+
+```{r}
+moneyball = subset(baseball,baseball$Year<2002)
+moneyball$RD = moneyball$RS-moneyball$RA
+library('ggplot2')
+ggplot(aes(x=RD,y=W),data=moneyball)+geom_point()
+
+```
+
+As evident from the plot above, there is a relationship between run difference and wins(As intuitively expected)
+
+When we don't know what variables to plot, we generally use a scatterplot matrix. Use ggally pkg.
+
+Now lets create the model
+
+```{r}
+model1 <- lm(moneyball$W~moneyball$RD)
+summary(model1)
+```
+
+We have a very strong R2 above.
+
+Now lets see if we can prove the claims made in the video that to win 95% of the games there should be a difference of 135 runs atleast.
+
+
+So we want x when we have y in eq y = mx +c where m is slop and c is intercept. y is 95, m is 0.105 and c is 80.88
+Now we want to get Intercept*VariableEst to be = 95 so that Oakland can make it to playoffs. We can see that x or the number of games is around 135.
+
+Now next point is how we score more runs and how do we reduce the runs given.
+
+Well batting score could be predicted using On-base (how many times player gets the base) and Slugging Percentages(how far the ball is hit)
+
+Diff between OBP and Batting Avg. is that OBP includes walking too.
+
+Now lets see if we can use statistics to see which variables predicts the score by creating a lm.
+
+```{r}
+model2 <-lm(moneyball$RS~moneyball$BA+moneyball$OBP+moneyball$SLG)
+model3<-lm(moneyball$RS~moneyball$OBP+moneyball$SLG,moneyball)
+
+summary(model2)
+summary(model3)
+```
+
+Now we can see that Batting average is overvalued while other more imp. variables are undervalued, like OBP and SLG
+
+Similarly we can use the same approach to predict the number of run that is going to be scored in upcoming season based on team's stats in previous season. For e.g.
+
+Using a team's OBP and SLG for a given year, we can predict the runs scored in next year.
+
+Now why Billy Bean said that his technique will work untill the playoffs?
+Reason is that in the league games the number of games are large, hence the luck evens out and skill shines through.
+Lets see if data shows us that. If we look at the corelation between team winning in league and team winning the World Series turns out to be very low (0.03) suggesting that sample size in playoffs is small.
+
+Lets take a look at 2012 and 2013 playoff teams and their season wins.
+
+```{r}
+teamRank =c(1,2,3,3,4,4,4,4,5,5)
+win_2012=c(94,88,95,88,93,94,98,97,93,94)
+win_2013=c(97,97,92,93,92,96,94,96,92,90)
+
+cor(teamRank,win_2012)
+cor(teamRank,win_2013)
+```
+
+As one cor is +Ve and other is -ve, its hard to predict the playoff wins based on league wins for a team. We wouldn't be comfortable predicting that.
+
+Before Money ball became popular, the A's were an outlier but now other teams are also using this techniques and getting more closer to A's techniques.
+
+Other than moneyball there is another book ***"The extra 2%"*** which depicts story of Tampa Bay rays.
+
+As we can see that model above was really simple yet it led to better decisions than **gut feeling**. Now every major teams have stats group. Boston Red sox employed these techniques and won the world series after 86 years.
+
+This technique is now a well know term known as **Sabermetrics**
+
+While Moneyball made the use of analytics in sports very popular, baseball is not the only sport for which analytics is used. Analytics is currently used in almost every single sport, including basketball, soccer, cricket, and hockey.
+
+***Basketball***: The study of analytics in basketball, called APBRmetrics, is very popular. There have been many books written in this area, including "Pro Basketball Forecast" by John Hollinger and "Basketball on Paper" by Dean Oliver. There are also several websites dedicated to the study of basketball analytics, including 82games.com. We'll talk more about basketball during recitation.
+
+***Soccer***: The soccer analytics community is currently growing, and new data is constantly being collected. Many argue that it is much harder to apply analytics to soccer, but there are several books and websites on the topic. Check out "The Numbers Game: Why Everything You Know about Football is Wrong" by Chris Anderson and David Sally, as well as the websites socceranalysts.com and soccermetrics.net.
+
+***Cricket***: There are several websites dedicated to building models for evaluating player performance in cricket. Check out cricmetric.com and impactindexcricket.com. 
+
+***Hockey***: Analytics are used in hockey to track player performance and to better shape the composition of teams. Check out the websites hockeyanalytics.com and lighthousehockey.com.
