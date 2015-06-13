@@ -1,0 +1,505 @@
+---
+title: "Final-Project"
+author: "Sanyamc"
+date: "Tuesday, April 28, 2015"
+output: html_document
+---
+
+##Initial Exploration##
+
+Lets first load the data set in R and see what it looks like.
+
+```{r, echo=FALSE,warning=FALSE}
+df <- read.csv("E:\\Src\\RProgramming\\Project-Udacity\\wineQualityReds.csv")
+str(df)
+summary(df)
+
+```
+
+As we can see there are around 13 variables. Most of them are numerical variables, around 12 of them are chemical variables and 1 variable is quality variable. So before diving deep into the data set, let's set some expectations from this data set to find out.
+
+1. What are the distributions and relatioships between different variable?
+2. How does quality responds to different independent variable?
+3. Is there a linear relationship between quality and other variables and can we build a model to predict the quality of wine?
+
+##Lets start by looking at quality Variable##
+
+As mentioned in the Variables info quality is based on the sensory data; picked as the median of 3 people.
+
+```{r, echo=FALSE, warning=FALSE}
+library('ggplot2')
+ggplot(aes(x=quality),data=df)+
+  geom_histogram(fill='orange')
+```
+
+Lets create a factor of quality variable and plot that.
+
+```{r, echo=FALSE, warning=FALSE}
+df$qualityF <- factor(df$quality)
+summary(df$qualityF)
+ggplot(aes(x=qualityF),data=df)+geom_histogram(fill='orange')
+
+```
+
+*As we can see it looks like a normal distribution.* However if we take a close look at the new quality factor variable, we can see that count of level 3 and level 8 are very low. Given these counts are very small (way less than the mean of quality counts) we should probably not include them in the analysis. We can remove these values from our EDA as they likely won't reveal convincing relationship between quality of wine and the chemical properties.
+Below I subsetted the data frame to exclude quality with level 3 and 8.
+
+```{r, echo=FALSE, warning=FALSE}
+table(df$quality)
+df_w = subset(df, quality < 8 )
+df_w = subset(df_w, quality > 3)
+df_w$qualityF = factor(df_w$quality)
+summary(df_w$quality)
+```
+
+
+Now lets see other variables and how they relate to quality variable. For that lets start our exploration using ggally package and create chart using the scatterplotmatrix. I am going to exclude the first column(x) from the chart.
+
+Since there are so many columns, I am going to subset it into three data sets , both including quality variables and plot those three using ggally package.
+
+```{r,echo=FALSE, warning=FALSE}
+
+t1=df_w[c(3:6,13)]
+t2=df_w[c(7:8,13)]
+t3=df_w[c(9:12,13)]
+
+library('GGally')
+
+GGally::ggpairs(data=t1)
+GGally::ggpairs(data=t2)
+GGally::ggpairs(data=t3)
+
+```
+
+There are some interesting observations from the above chart.
+
+* Volatile aciditiy and Quality seems negatively correlated and that relation looks uniform.
+* Citric acid and Quality seems +vely correlated and that also looks uniform.
+* Alcohol and Quality seems somewhat related however that is not as prominent as I expected (based on variable description).
+
+Lets explore the variables in more details. Lets start by looking at acidic Variables
+
+### Volatile Acidity ###
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(aes(x=volatile.acidity),data=df_w)+
+  geom_histogram(fill='orange',color='black')
+
+
+```
+
+We can see from the distribution of volatile acidity that it has a pretty normal like distribution, which is interesting. Given that volatile acidity is negatively related to quality, lets see how is the spread of volatile acidity over different quality variables.
+
+In below code I am tapplying over summary method.
+
+```{r,echo=FALSE, warning=FALSE}
+tapply(df_w$volatile.acidity,df_w$qualityF,summary)
+
+
+```
+
+Data seems to be matching what is said in the description. Volatile acidity is not good for quality of wine.
+
+### Citric Acid ###
+```{r, echo=FALSE, warning=FALSE}
+ggplot(aes(x=citric.acid),data=df_w)+
+  geom_histogram(fill='orange',color='black')
+
+
+```
+
+Distribution of Citric acid looks little right skewed with median and mean values being close. Lets also take a look at its relationship with quality.
+
+```{r,echo=FALSE, warning=FALSE}
+tapply(df_w$citric.acid,df_w$qualityF,summary)
+
+```
+
+We can see that citric acid has a +Ve relation with quality however majority of values are less than 0.50 and we can see that citric acid with value 1.0 occurs in quality 4 which is clearly an outlier.
+
+### Acid w.r.t. pH ###
+
+I am ignoring Fixed.acidity for now but I have revisited it later in this document because from the ggally graph, it didn't demonstrate any meaningful relation between quality and fixed.acidity.
+
+However acid variables should have a negative relation with pH. Lets plot pH with citric.acid and volatile.acidity.
+
+```{r,echo=FALSE, warning=FALSE}
+ggplot(aes(x=pH),data=df_w)+
+  geom_point(aes(y=df_w$citric.acid))+
+  geom_point(aes(y=volatile.acidity),color='orange') +
+  xlab("pH")+
+  ylab("Acidity")
+```
+
+In above graph, *black* dots represents *citric acid* and orange is *volatile acidity*. Its interesting that volatile acidity's spread is pretty uniform throughout the distribution of pH and volatile acidity doesn't really demonstrate -ve relation with pH however citric acid does.
+
+I am pretty sure there are other acidic content in the wine which strongly dictates the level of pH.
+
+Lets take a quick look at fixed acidity and see where it is.
+
+```{r,echo=FALSE, warning=FALSE}
+
+ggplot(aes(x=pH),data=df_w)+
+  geom_point(aes(y=df_w$fixed.acidity),color='Blue')+
+  ylab('fixed.acidity')
+```
+
+Yeah, the data seems to suggest that higher fixed acidity and citric acid lower the pH and vice versa.
+
+Since alcohol is also a type of acid, lets quickly plot that and see if it has any impact on pH.
+
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(aes(x=pH,y=alcohol),data=df_w)+
+  geom_point()
+```
+Well not really, based on the given data, alcohol doesn't really have a inverse relation with pH.
+
+## Alcohol's contribution to quality ##
+
+Lets now look at alcohol and see what impact it has on wine.To start with, lets take a look at the distribution of alcohol.
+
+```{r, echo=FALSE, warning=FALSE}
+
+ggplot(aes(x=alcohol),data=df_w)+
+  geom_histogram(color="black",fill="orange")
+
+tapply(df_w$alcohol,df_w$qualityF,summary,na.rm=TRUE)
+
+```
+
+Above graph is the distribution of alcohol in the dataset. Data looks right skewed. Below is the summary function applied to alcohol grouped by quality of wine. Interesting thing to note is that 
+1. In quality 7 the Mean is substantially higher
+2. The alcohol level generally increases as is the quality of wine, as suggested by Min, Quartiles and Median of different alcohol levels.
+
+
+Given that alcohol shows some positive trends with quality, I wonder if density(water density) will show negetive relationship with alcohol and then in turn quality.
+
+### Density###
+
+Lets see what density distribution looks like
+
+```{r,echo=FALSE, warning=FALSE}
+tapply(df_w$density,df_w$qualityF,summary)
+
+ggplot(aes(x=density),data=df_w)+
+  geom_histogram(color='black',fill='orange')
+
+
+```
+
+WOW!! this is a normal distribution with mean and median are *exactly same*. This is rare to see in a real data set.
+
+Next, lets see if this has any relation with alcohol.
+
+To do so, I am going to create two columns namely highDensity and highAlcohol which will have value 1 or 0 if that row has density and alcohol value > mean respectively.
+
+Finally I am using table to create a table below. Table has high density as row and column as highAlcohol.
+
+
+```{r}
+df_w$highDensity <- as.numeric(df_w$density>mean(df_w$density))
+df_w$highAlcohol <- as.numeric(df_w$alcohol>mean(df_w$alcohol))
+
+table(df_w$highDensity,df_w$highAlcohol)
+
+
+```
+
+Above table shows that with given data high Alcohol has 469 values with low density and around 589 entries with high density but low alcohol. Which suggests that alcohol and density could be somewhat related.
+
+Lets group density by quality and see where that falls.
+
+```{r, echo=FALSE, warning=FALSE}
+
+tapply(df_w$density,df_w$qualityF,summary)
+
+ggplot(aes(x=qualityF,y=density),data=df_w)+
+  geom_boxplot(aes(fill=qualityF))
+
+```
+
+Given data shows that higher quality wine have approximately same mean and range as lower quality wines.
+
+Moving on, ggally graph was showing high cor between fixed acidity and density. Lets see whats going on there.
+
+```{r }
+tapply(df_w$fixed.acidity,df_w$highDensity,summary)
+
+
+```
+
+Indeed, From the given data set wines with higher water density has higher fixed acidity.
+
+I wonder what kind of distribution fixed acidity has
+
+```{r , echo=FALSE, warning=FALSE}
+
+summary(df_w$fixed.acidity)
+
+ggplot(aes(fixed.acidity),data=df_w)+
+  geom_histogram(color='black',fill='orange')
+
+ggplot(aes(fixed.acidity),data=df_w)+
+  geom_histogram(color='black',fill='orange') + 
+  facet_wrap(~qualityF,ncol=3)
+
+
+```
+
+
+*There is a definite relation between the water density and fixed acidity which I would have never predicted by looking at variable description. In other words, this is really interesting relation coming out of this data.*
+
+### Sulphur Di Oxides and Sulphates ###
+
+Lets see the total SO2 distribution w.r.t quality and also checkout quality of wines which has total SO2 > 50 ppm . As per variable description it makes quality poor. Assuming 1 ppm == mg/dm^3
+
+
+```{r, echo=FALSE, warning=FALSE}
+
+tapply(df_w$total.sulfur.dioxide,df_w$qualityF,summary)
+
+
+
+```
+
+By looking at its third quartile variable its interesting that most of the quality 6, 7 wines have < 50 total SO2 and SO does quality 4
+
+Free SO2 and Sulphates.
+
+Let me create another variable known as highFreeS02 which has Free SO2 > mean(freeSO2) and then tapply that with sulphates
+
+```{r}
+
+
+df_w$highFreeSO2 <- as.numeric(df_w$free.sulfur.dioxide > mean(df_w$free.sulfur.dioxide))
+
+tapply(df_w$sulphates,df_w$highFreeSO2,summary)
+
+
+```
+
+Well median is same for both  high and low free sulfur di oxide, however 3rd quartile values are higher for higher free sulfur di oxide.
+
+w.r.t quality the sulphates is +vly related to quality of wine. Which kind of makes sense as that would keep wine quality healthy for a longer time. Its box plot is below in final plots section.
+
+
+### Residual Sugar and Sodium chlorides ###
+
+Below I am just checking out residual sugar, chloride's distribution. And also if there is any relation between them and quality.
+
+I have also created a new variable called as low sugar which has sugar < 1 gm/liter since those wines are rare. As it turned out below, there are 2 rare wines in our data set.
+
+```{r, echo=FALSE, warning=FALSE}
+summary(df_w$residual.sugar)
+
+ggplot(aes(x=df_w$residual.sugar),data=df_w)+
+  geom_histogram(color='black',fill='orange')
+
+summary(df_w$chlorides)
+ggplot(aes(x=chlorides),data=df_w)+
+  geom_histogram(color='black',fill='orange')
+
+df_w$lowSugar <- as.numeric(df_w$residual.sugar < 1)
+
+table(df_w$lowSugar)
+
+```
+
+
+
+
+## Creating our model to predict the quality ##
+
+
+To train the the model, we need to separeate the data between test and training data set and see how good our model is.
+
+I used stackOverflow help to figure out how to separate the data into training and test set.
+http://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function-in-r-program.
+
+
+```{r, echo=FALSE, warning=FALSE}
+samplSize<-floor(0.75*nrow(df_w))
+set.seed(1234)
+train_ind <-sample(seq_len(nrow(df_w)),size=samplSize)
+train<-df[train_ind,]
+test<-df[-train_ind,]
+
+```
+
+Now lets build our linear model using the training data. Based on our EDA we have some insights into what variables to pick and what not to pick.
+
+1. It might not be worthwhile to pick alcohol and density in the same model as they may introduce mutli-colinearity.
+2. Similarly Acid and pH, free and total sulfur di oxide. I am going to pick one of these variables in the model.
+3. I am going to ignore sugar and chloride in the initial model as they didn't had much say in quality based on the graphs.
+
+```{r}
+model1 <- lm(quality~alcohol+total.sulfur.dioxide+fixed.acidity,data=train)
+summary(model1)
+
+```
+
+
+As we can see that R squared is really low, lets play with more variable and see which ones gives us highest Adjusted R-squared.
+
+After trying with few variables in the console, including the ones I ignored earlier, I came up with below model that includes
+
+* Alcohol
+* sulphates
+* total.sulfur.dioxide
+* volatile.acidity
+* chlorides
+
+```{r, echo=FALSE, warning=FALSE}
+model2 <- lm(quality~alcohol+sulphates+volatile.acidity+total.sulfur.dioxide+chlorides,data=train)
+
+summary(model2)
+
+```
+
+More analysis is continued in final section.
+
+
+-------------------------------------------------------------------------------------------------
+### Final Plots and Summary ###
+
+Here I present three plots which summarize the analysis done on given data set. These are effectively the same graphs from above but the ones which I found to be most useful in conveying the relation among variables.
+
+As said earlier in the document, i have focused my analysis w.r.t. quality variable and checmical properties affecting that however I did find distribution of some variables very interesting , specifically density and its relation with fixed.acidity.
+
+####Plot 1:####
+
+Distribution of density w.r.t. quality , *normal distribution*. This opens up a whole set of stats tools if we want to predict using density. However given the dataset, i didn't find any interesting relation of density with quality, alcohol or residual sugar.
+
+Unlike earlier in the EDA, below digram is the facet wrapped with quality and we still see normal distribution of density throughout.
+
+```{r,echo =FALSE}
+
+ggplot(aes(x=density),data=df_w)+
+  geom_histogram(color='black',fill='orange')+
+  facet_wrap(~qualityF,ncol=3)
+
+```
+
+Relation of density w.r.t. fixed.acidity in the data set. Most *Counter-Intuitive* finding from this dataset
+
+```{r, echo = FALSE}
+
+ggplot(aes(fixed.acidity,density),data=df_w)+
+  geom_point(color='blue')+geom_smooth()
+
+```
+
+
+
+####Plot 2:####
+
+Acidtity w.r.t. pH
+
+I found that fixed.acidity and citric.acid has -ve relation with pH however volatile.acidity does not really contribute to pH.
+
+Modifying the chart from above analysis by adding a log(fixed.acidity) and adding a geom smooth. In below chart 
+
+
+
+```{r,echo=FALSE, warning=FALSE}
+
+library('gridExtra')
+
+p1 <- ggplot(aes(x=pH),data=df_w)+
+  geom_point(aes(y=citric.acid),alpha=0.2)+
+  geom_smooth(aes(y=df_w$citric.acid),color='black')
+p2 <- ggplot(aes(x=pH),data=df_w)+
+     geom_point(aes(y=volatile.acidity),color='orange',alpha=0.2)+
+     geom_smooth(aes(y=df_w$volatile.acidity),color='orange')
+p3 <- ggplot(aes(x=pH),data=df_w)+
+      geom_point(aes(y=log(fixed.acidity)),color='blue',alpha=0.2)+
+       geom_smooth(aes(y=log(df_w$fixed.acidity)),color='blue') 
+
+grid.arrange(p1,p2,p3,heights=c(1:1),ncol=1)
+
+```
+
+####Plot 3:####
+
+Plotting variables which has +Ve and -ve relations with quality.
+
+*Alcohol, sulphates and citric acid* were +vly related to quality as demonstrated by box plots earlier in the analysis, now lets plot alcohol vs sulphates plot w.r.t. quality. I am taking the log transformation for alcohol.
+
+
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(aes(x=qualityF,y=alcohol),data=df_w)+
+  geom_boxplot(aes(fill=qualityF))
+
+ggplot(aes(y=sulphates,x=qualityF),data=df_w)+
+  geom_boxplot(aes(fill=qualityF))
+
+ggplot(aes(y=citric.acid,x=qualityF),data=df_w)+
+  geom_boxplot(aes(fill=qualityF))
+
+```
+
+* Volatile acidity, Total Sulfur dioxide w.r.t. quality*
+
+```{r, echo=FALSE, warning=FALSE, supressWarnings}
+
+ggplot(aes(y=total.sulfur.dioxide,x=qualityF),data=df_w)+
+  geom_boxplot(aes(fill=qualityF))+
+  geom_hline(y=50,alpha=0.4,linetype=2)
+
+ggplot(aes(y=volatile.acidity,x=qualityF),data=df_w)+
+  geom_boxplot(aes(fill=qualityF))
+
+```
+
+Horizontal line is the 50 ppm above which total.sulfur.dioxide -vely impacts the quality of wine. However from the given data that is hard to predict.We need some statistical test around that to predict that.
+
+
+
+####Reflection####
+
+After looking at the data, i had no idea where to start. First step was to look at existing variables, after looking at it, one thing became obvious is that we can understand the quality of wine from given variables. Readme from dataset helped too.
+
+From the EDA I found:
+
+1 alcohol, citric acid and sulphates are +vly related to quality, and volatile acidity, total sulfur di oxide are inversly related to quality
+
+2 Density had a normal distribution . Density Also had linear relation with fixed. acidity 
+
+#### *Analysis on Linear model* ####
+
+I am *little surprised* as I thought sulphates and tota.sulfur.dioxide both together won't be significant variables, however they both are.
+
+Now lets try to predict the quality using the test data and see how good our model is doing.Given that our quality is in round figures so lets round the above predicted values too. And finally table the outcome i.e. predicted correctly vs predicted incorrectly.
+
+```{r, echo=FALSE, warning=FALSE}
+
+predicted <- predict(model2,test)
+
+predicted <- round(predicted)
+
+test$factored <- factor(predicted)
+
+test$isCorrectPrediction <- as.numeric(test$quality == predicted)
+
+table(test$isCorrectPrediction)
+
+```
+
+
+Well the results are really discouraging for our simple linear regression model. It was able to predict correctly 243 times and unsuccessfully 178 times. In all honesty, the model looks dumb; I have read somewhere that logistic regression are better fit for categorical variables like quality. I guess its time for me to go back and study more machine learning techniques and come back well equipped to create a new model to predict quality.
+
+Further work:
+
+1. Identify variables which showed relationship to quality have statistical relationship and not just from this sample. i.e. calculate Confidence interval for volatile acidity etc. to predict quality.
+2. Improve the model, may be logistic regression , maybe something else.
+
+
+
+
+
+
+
+
+

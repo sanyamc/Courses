@@ -1,0 +1,307 @@
+Red Wine Exploratory Data Analysis by Sanyam Chaudhary
+========================================================
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using
+# in your analysis in this code chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk.
+# This prevents the code from displaying in the knitted HTML output.
+# You should set echo=FALSE for all code chunks in your file.
+
+library(ggplot2)
+library('gridExtra')
+library(knitr)
+library(corrplot)
+```
+
+```{r echo=FALSE, Load_the_Data,warning=FALSE}
+# Load the Data
+df <- read.csv("E:\\Src\\RProgramming\\Project-Udacity\\wineQualityReds.csv")
+# Checking the variable names and summary from the data.
+names(df)
+
+
+# Removing quality 3 and quality 8 as their observations are very small in number(way less than mean of qualityF count)
+df = subset(df, quality < 8 )
+df = subset(df,quality > 3)
+
+df$factored.quality = factor(df$quality)
+df$boundSO2 = df$total.sulfur.dioxide - df$free.sulfur.dioxide
+
+# Unlike most features, unit of density is gm/cm^3, so converting it to gm/dm^3 by multiplying its value by 1000
+df$densityDM3 = df$density*1000
+
+# Changing some of column names, so its easy to index into them.
+colnames(df)[7]="freeSO2"
+colnames(df)[8]="totalSO2"
+
+
+
+
+
+
+```
+
+# Univariate Plots Section
+
+Distribution of a feature is demonstrated by histogram, boxplot and the summary stat function.
+
+```{r echo=FALSE, Univariate_Plots,warning=FALSE}
+
+# creating a histogram and a boxplot and displaying them side by side using grid package.
+# Following the graphs with summary function
+
+# This exercise is to understand the data, so that in case we see how many outliers are there in the features etc. And if we remove the 
+# outliers how the distribution is going to be(normal or skewed), is the outliers in one direction or other or both.
+
+p1 <- ggplot(aes(x=fixed.acidity),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+
+p2 <- ggplot(aes(y=fixed.acidity),data=df)+
+       geom_boxplot(aes(x="Fixed Acidity Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[2]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+
+
+
+p1 <- ggplot(aes(x=citric.acid),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=citric.acid),data=df)+
+       geom_boxplot(aes(x="citric.acid Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[4]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+
+     
+p1 <- ggplot(aes(x=volatile.acidity),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=volatile.acidity),data=df)+
+       geom_boxplot(aes(x="volatile.acidity Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[3]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+
+p1 <- ggplot(aes(x=residual.sugar),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=residual.sugar),data=df)+
+       geom_boxplot(aes(x="Residual.sugar Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[5]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+
+
+p1 <- ggplot(aes(x=chlorides),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=chlorides),data=df)+
+       geom_boxplot(aes(x="Chlorides Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[6]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+     
+p1 <- ggplot(aes(x=densityDM3),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=densityDM3),data=df)+
+       geom_boxplot(aes(x="densityDM3 Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[16]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+p1 <- ggplot(aes(x=pH),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=pH),data=df)+
+       geom_boxplot(aes(x="pH Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[10]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+p1 <- ggplot(aes(x=alcohol),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=alcohol),data=df)+
+       geom_boxplot(aes(x="Alcohol Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[12]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+     
+p1 <- ggplot(aes(x=sulphates),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=sulphates),data=df)+
+       geom_boxplot(aes(x="sulphates Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[11]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+p1 <- ggplot(aes(x=freeSO2),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=freeSO2),data=df)+
+       geom_boxplot(aes(x="Free SO2 Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[7]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+
+
+p1 <- ggplot(aes(x=boundSO2),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=boundSO2),data=df)+
+       geom_boxplot(aes(x="boundSO2 Range"),fill="orange")
+
+
+p3 <- tableGrob(summary(df[15]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+
+     
+p1 <- ggplot(aes(x=totalSO2),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2 <- ggplot(aes(y=totalSO2),data=df)+
+       geom_boxplot(aes(x="totalSO2 Range"),fill="orange")
+
+p3 <- tableGrob(summary(df[8]))
+
+grid.arrange(p1,p2,p3,ncol=3)
+
+
+p1<-ggplot(aes(x=factored.quality),data=df)+
+      geom_histogram(fill="skyblue",color="black")
+p2<-tableGrob(summary(df[14]))
+grid.arrange(p1,p2,ncol=2)
+
+
+```
+
+# Univariate Analysis
+
+### What is the structure of your dataset?
+Data set has 1599 observations with 13 variables. Out of those 13, 1 is index, 11 are physiocochemical variables and 1 quality is treated as main variable for this analysis.
+
+### What is/are the main feature(s) of interest in your dataset?
+Main feature for this dataset is quality. Effectively, I want to see from this data set that is there a relationship between quality and other variables and can we build a model to predict the quality of wine? Based on the lecture notes from class any correlation between 2 variables >.6 is strong and >.3 is meaningful, So I am going to keep an eye out for variables with that correlation.
+
+### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+Based on the description of variables names, I am tempted to see the relation between alcohol, citric acid and other variables which are mentioned to downgrade or upgrade the quality of wine.
+
+### Did you create any new variables from existing variables in the dataset?
+Yes, I created a factored quality Variable. Also calculated Bound SO2 after looking at the variable description for Total SO2.
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+
+Yes, I saw that distribution of quality variable is uneven, so much so that quality with level 3 and 8 have significantly low numbers. Since it is way smaller than mean of quality distribution per level, I have decided to remove level 3 and 8.
+I also calculated DensityDM i.e. multiply the existing Density *1000 to convert it into gm/dm^3 . I plan to plot it with residual sugar , which is expressed in gm/dm^3.
+
+*Few other Observations from data.*
+
+1. Most of the features have outliers. They are in one side.
+2. If we remove outliers from fixed.acidity,volatile acidity then distribution will become somewhat normal.
+3. Chlorides and Residual Sugar have unusually large number of outliers.
+4. DensityDM3 have outliers on both sides. The distribution IS a normal distrubtion. pH, citric. acid are close to normal.
+5. Quality with observations 5 and 6 are way way higher than 4 and 7. This could prove challenging when we are going to create our model as we have less data for 4 and 7. 
+
+
+
+# Bivariate Plots Section
+
+I want to start of with correlation matrix to see whats the correlation among different variables and plot the ones which had any meaningful relationships. I am going to use corrplot package for this.
+
+```{r echo=FALSE, Bivariate_Plots, fig.width=13, fig.height=13}
+
+# Createing correlation among features, excluding index, factored.quality(including numerical quality variable) and density as its 
+# covered by newly created densityDM3 feature.
+
+M<-cor(df[c(-1,-14,-9)])
+ corrplot.mixed(M,order="alphabet")
+
+
+
+```
+
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+As mentioned before, quality is our main feature. Based on the data, it showed strongest correlation with % of alcohol in the wine. Quality showed moderate to strong positive relation with
+1. Alcohol
+2. Citric Acid
+3. Sulphates
+
+And Quality showed moderate to strong negative relation with 
+1. Volatile Acidity
+2. Bound/Total SO2
+
+### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+
+
+
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+### Were there any interesting or surprising interactions between features?
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+```
+
+### Description One
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+```
+
+### Description Two
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+```
+
+### Description Three
+
+------
+
+# Reflection
