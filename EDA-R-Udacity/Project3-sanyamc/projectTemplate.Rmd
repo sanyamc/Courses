@@ -338,7 +338,7 @@ And Quality showed moderate to strong negative relation with
 
 4. There is a +ve relation between sulphates and quality with huge number of outliers in category 5. Based on this data sulphates does impact quality in a good way.
 
-5. TotalSO2 has somewhat varied distribution throughout quality. And gives a sense of somewhat normal distribution, which suggests that if TotalSO2 is low(around the mean of quality 4 and 8) we can predict the quality of Wine with higher probability.
+5. TotalSO2 has somewhat varied distribution throughout quality. And gives a sense of somewhat normal distribution, which suggests that if TotalSO2 is low(around the mean of TotalSO2 at quality 4 and 8) we can predict the quality of Wine with higher probability.
 
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
 
@@ -350,7 +350,7 @@ Yes, they are described as follows:
 
 ### What was the strongest relationship you found?
 
-Strongest relation I found was between pH and fixed.Acidity. I also found strong relation between Density and fixed acidity which I wasn't expecting. Again relationship between density and fixed acidity is counterintuitive. As density represents water density and should have theoretically should have inverse relation with amount of acid in the wine.
+Strongest relation I found was between pH and fixed.Acidity. I also found strong relation between Density and fixed acidity which I wasn't expecting. Again relationship between density and fixed acidity is counterintuitive. As density represents water density and should have theoretically the inverse relation with amount of acid in the wine.
 
 
 # Multivariate Plots Section
@@ -385,6 +385,54 @@ I also found an interesting relation with fixed acidity and density and have plo
 
 
 ### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+
+I created the model with variables Alcohol, Volatile.acidity, sulphates and citric.acid as they seem to show relatioship with qualtiy as per EDA.
+
+To train the the model, we need to separeate the data between test and training data set and see how good our model is.
+
+I used stackOverflow help to figure out how to separate the data into training and test set.
+http://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function-in-r-program.
+
+
+```{r, echo=FALSE, warning=FALSE}
+samplSize<-floor(0.75*nrow(df))
+set.seed(1234)
+train_ind <-sample(seq_len(nrow(df_w)),size=samplSize)
+train<-df[train_ind,]
+test<-df[-train_ind,]
+
+```
+
+Now lets build our linear model using the training data. Based on our EDA we have some insights into what variables to pick and what not to pick.
+
+
+```{r}
+model1 <- lm(quality~alcohol+volatile.acidity+sulphates+citric.acid,data=train)
+summary(model1)
+
+```
+
+
+#### *Analysis on Linear model* ####
+
+Now lets try to predict the quality using the test data and see how good our model is doing.Given that our quality is in round figures so lets round the above predicted values too. And finally table the outcome i.e. predicted correctly vs predicted incorrectly.
+
+```{r, echo=FALSE, warning=FALSE}
+
+predicted <- predict(model1,test)
+
+predicted <- round(predicted)
+
+test$factored <- factor(predicted)
+
+test$isCorrectPrediction <- as.numeric(test$quality == predicted)
+
+table(test$isCorrectPrediction)
+
+```
+
+
+Well the results are really discouraging for our simple linear regression model. It was able to predict correctly 233 times and unsuccessfully 167 times. In all honesty, the model looks dumb; I have read somewhere that logistic regression are better fit for categorical variables like quality. I guess its time for me to go back and study more machine learning techniques and come back well equipped to create a new model to predict quality.
 
 ------
 
