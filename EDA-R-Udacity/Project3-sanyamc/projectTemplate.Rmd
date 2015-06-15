@@ -10,21 +10,24 @@ Red Wine Exploratory Data Analysis by Sanyam Chaudhary
 # You should set echo=FALSE for all code chunks in your file.
 
 library(ggplot2)
-library('gridExtra')
+library(gridExtra)
 library(knitr)
 library(corrplot)
+library(dplyr)
 ```
 
-```{r echo=FALSE, Load_the_Data,warning=FALSE}
+```{r echo=FALSE, Load_the_Data,warning=FALSE, fig.width=13, fig.height=13}
 # Load the Data
-df <- read.csv("E:\\Src\\RProgramming\\Project-Udacity\\wineQualityReds.csv")
-# Checking the variable names and summary from the data.
+df <- read.csv("E:\\wineQualityReds.csv")
+# Checking the variable names.
 names(df)
+summary(df)
 
-
-# Removing quality 3 and quality 8 as their observations are very small in number(way less than mean of qualityF count)
+# Removing quality 3 and quality 8 as their observations are very small in number(way less than mean of quality count)
 df = subset(df, quality < 8 )
 df = subset(df,quality > 3)
+
+# creating a new variable factored.quality for ease in treating quality as categorical var when need arises.
 
 df$factored.quality = factor(df$quality)
 df$boundSO2 = df$total.sulfur.dioxide - df$free.sulfur.dioxide
@@ -35,11 +38,6 @@ df$densityDM3 = df$density*1000
 # Changing some of column names, so its easy to index into them.
 colnames(df)[7]="freeSO2"
 colnames(df)[8]="totalSO2"
-
-
-
-
-
 
 ```
 
@@ -56,10 +54,10 @@ Distribution of a feature is demonstrated by histogram, boxplot and the summary 
 # outliers how the distribution is going to be(normal or skewed), is the outliers in one direction or other or both.
 
 p1 <- ggplot(aes(x=fixed.acidity),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 
 p2 <- ggplot(aes(y=fixed.acidity),data=df)+
-       geom_boxplot(aes(x="Fixed Acidity Range"),fill="orange")
+       geom_boxplot(aes(x="Fixed Acidity Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[2]))
 
@@ -70,9 +68,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=citric.acid),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=citric.acid),data=df)+
-       geom_boxplot(aes(x="citric.acid Range"),fill="orange")
+       geom_boxplot(aes(x="citric.acid Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[4]))
 
@@ -82,9 +80,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
      
 p1 <- ggplot(aes(x=volatile.acidity),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=volatile.acidity),data=df)+
-       geom_boxplot(aes(x="volatile.acidity Range"),fill="orange")
+       geom_boxplot(aes(x="volatile.acidity Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[3]))
 
@@ -93,9 +91,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=residual.sugar),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=residual.sugar),data=df)+
-       geom_boxplot(aes(x="Residual.sugar Range"),fill="orange")
+       geom_boxplot(aes(x="Residual.sugar Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[5]))
 
@@ -105,9 +103,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=chlorides),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=chlorides),data=df)+
-       geom_boxplot(aes(x="Chlorides Range"),fill="orange")
+       geom_boxplot(aes(x="Chlorides Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[6]))
 
@@ -115,9 +113,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
      
 p1 <- ggplot(aes(x=densityDM3),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=densityDM3),data=df)+
-       geom_boxplot(aes(x="densityDM3 Range"),fill="orange")
+       geom_boxplot(aes(x="densityDM3 Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[16]))
 
@@ -125,9 +123,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=pH),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=pH),data=df)+
-       geom_boxplot(aes(x="pH Range"),fill="orange")
+       geom_boxplot(aes(x="pH Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[10]))
 
@@ -135,9 +133,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=alcohol),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=alcohol),data=df)+
-       geom_boxplot(aes(x="Alcohol Range"),fill="orange")
+       geom_boxplot(aes(x="Alcohol Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[12]))
 
@@ -145,9 +143,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
      
 p1 <- ggplot(aes(x=sulphates),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=sulphates),data=df)+
-       geom_boxplot(aes(x="sulphates Range"),fill="orange")
+       geom_boxplot(aes(x="sulphates Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[11]))
 
@@ -155,9 +153,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=freeSO2),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=freeSO2),data=df)+
-       geom_boxplot(aes(x="Free SO2 Range"),fill="orange")
+       geom_boxplot(aes(x="Free SO2 Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[7]))
 
@@ -167,9 +165,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1 <- ggplot(aes(x=boundSO2),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=boundSO2),data=df)+
-       geom_boxplot(aes(x="boundSO2 Range"),fill="orange")
+       geom_boxplot(aes(x="boundSO2 Range"),fill="orange")+theme_bw()
 
 
 p3 <- tableGrob(summary(df[15]))
@@ -180,9 +178,9 @@ grid.arrange(p1,p2,p3,ncol=3)
 
      
 p1 <- ggplot(aes(x=totalSO2),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2 <- ggplot(aes(y=totalSO2),data=df)+
-       geom_boxplot(aes(x="totalSO2 Range"),fill="orange")
+       geom_boxplot(aes(x="totalSO2 Range"),fill="orange")+theme_bw()
 
 p3 <- tableGrob(summary(df[8]))
 
@@ -190,7 +188,7 @@ grid.arrange(p1,p2,p3,ncol=3)
 
 
 p1<-ggplot(aes(x=factored.quality),data=df)+
-      geom_histogram(fill="skyblue",color="black")
+      geom_histogram(fill="skyblue",color="black")+theme_bw()
 p2<-tableGrob(summary(df[14]))
 grid.arrange(p1,p2,ncol=2)
 
@@ -238,6 +236,81 @@ I want to start of with correlation matrix to see whats the correlation among di
 M<-cor(df[c(-1,-14,-9)])
  corrplot.mixed(M,order="alphabet")
 
+# Starting with Alcohol, Checking its range across different Quality Levels.
+
+p1 <-ggplot(aes(x=factored.quality,y=alcohol),data=df)+
+    geom_boxplot(aes(fill=factored.quality))
+
+# Using dplyr package. It is essentially similar to tapply but below produces a nice output to plug into grid
+p2 <-tableGrob(df %>% group_by(Quality=factored.quality) %>% summarise(MeanAlcohol=mean(alcohol),MedianAlcohol=median(alcohol),Quantile75=quantile(alcohol,3/4),n=n()))  
+
+grid.arrange(p1,p2,ncol=2)
+
+# Volatile Acidity vs Quality
+
+p1 <-ggplot(aes(x=factored.quality,y=volatile.acidity),data=df)+
+    geom_boxplot(aes(fill=factored.quality))
+
+# Using dplyr package. It is essentially similar to tapply but below produces a nice output to plug into grid
+p2 <-tableGrob(df %>% group_by(Quality=factored.quality) %>% summarise(MeanVA=mean(volatile.acidity),MedianVA=median(volatile.acidity),Quantile75=quantile(volatile.acidity,3/4),n=n()))  
+
+
+grid.arrange(p1,p2,ncol=2)
+
+# Citric Acid VS Quality
+p1 <-ggplot(aes(x=factored.quality,y=citric.acid),data=df)+
+    geom_boxplot(aes(fill=factored.quality))
+
+# Using dplyr package. It is essentially similar to tapply but below produces a nice output to plug into grid
+p2 <-tableGrob(df %>% group_by(Quality=factored.quality) %>% summarise(MeanCA=mean(citric.acid),MedianCA=median(citric.acid),Quantile75=quantile(citric.acid,3/4),n=n()))  
+
+
+grid.arrange(p1,p2,ncol=2)
+
+# Sulphates VS Quality
+p1 <-ggplot(aes(x=factored.quality,y=sulphates),data=df)+
+    geom_boxplot(aes(fill=factored.quality))
+
+# Using dplyr package. It is essentially similar to tapply but below produces a nice output to plug into grid
+p2 <-tableGrob(df %>% group_by(Quality=factored.quality) %>% summarise(Mean=mean(sulphates),Median=median(sulphates),Quantile75=quantile(sulphates,3/4),n=n()))  
+
+
+grid.arrange(p1,p2,ncol=2)
+
+# TotalSO2 VS Quality
+p1 <-ggplot(aes(x=factored.quality,y=totalSO2),data=df)+
+    geom_boxplot(aes(fill=factored.quality))
+
+# Using dplyr package. It is essentially similar to tapply but below produces a nice output to plug into grid
+p2 <-tableGrob(df %>% group_by(Quality=factored.quality) %>% summarise(Mean=mean(totalSO2),Median=median(totalSO2),Quantile75=quantile(citric.acid,3/4),n=n()))  
+
+
+grid.arrange(p1,p2,ncol=2)
+
+
+# Volatile acidity vs pH
+ggplot(aes(x=pH,y=volatile.acidity),data=df)+
+       geom_point(alpha=0.2)+
+       geom_smooth()+theme_bw()
+
+
+# Fixed Acidity VS pH
+
+ggplot(aes(x=pH,y=fixed.acidity),data=df)+
+       geom_point(alpha=0.2)+
+       geom_smooth()+theme_bw()
+
+#Citric acid vs pH
+
+ggplot(aes(x=pH,y=citric.acid),data=df)+
+       geom_point(alpha=0.2)+
+       geom_smooth()+theme_bw()
+
+#Alcohol vs pH
+
+ggplot(aes(x=pH,y=alcohol),data=df)+
+       geom_point(alpha=0.2)+
+       geom_smooth()+theme_bw()
 
 
 ```
@@ -246,6 +319,7 @@ M<-cor(df[c(-1,-14,-9)])
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 As mentioned before, quality is our main feature. Based on the data, it showed strongest correlation with % of alcohol in the wine. Quality showed moderate to strong positive relation with
+
 1. Alcohol
 2. Citric Acid
 3. Sulphates
@@ -254,24 +328,61 @@ And Quality showed moderate to strong negative relation with
 1. Volatile Acidity
 2. Bound/Total SO2
 
+*Other Interesting Observations*
+
+1. Distribution of alcohol across levels of quality is varying, esp. with level 5 has most outliers. And given the number of entries for 5, thats kind of expected. However for Category 7, it had 200 observations WITH NO OUTLIERS. Mean and Median were around same, and distribution looked normal. Also the mean of alcohol % in level 7 was atleast higher than 3rd quartile of any other level. That tells us that there is definite +ve relation between alcohol and higher quality levels.
+
+2. Distribution of Volatile Acidity looked like mirror image of alcohol. It seems to have -ve relation with quality. Mean of lowest category was higher than 3rd quartile of any other level. And conversly, the mean of highest quality was less than first quartile of any other category. 
+
+3. There were way fewer outliers in citric.acid, relation is +ve with respect to quality for the given sample.
+
+4. There is a +ve relation between sulphates and quality with huge number of outliers in category 5. Based on this data sulphates does impact quality in a good way.
+
+5. TotalSO2 has somewhat varied distribution throughout quality. And gives a sense of somewhat normal distribution, which suggests that if TotalSO2 is low(around the mean of quality 4 and 8) we can predict the quality of Wine with higher probability.
+
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+Yes, they are described as follows:
+
+1. Since pH is a measure of acidity, its natural to see a relationship between pH and other acidic variables. pH is inversaly related to fixed.acidity, citric acid. However to volatile acidity its not showing any meaningful relation.
+
+2. pH is +vly related to alcohol, which is counter intuitive to my understanding that alcohol is a type of acid hence should have an inverse relation with pH, but for the given sample, this is not the case.
 
 ### What was the strongest relationship you found?
 
-
+Strongest relation I found was between pH and fixed.Acidity. I also found strong relation between Density and fixed acidity which I wasn't expecting. Again relationship between density and fixed acidity is counterintuitive. As density represents water density and should have theoretically should have inverse relation with amount of acid in the wine.
 
 
 # Multivariate Plots Section
 
-```{r echo=FALSE, Multivariate_Plots}
+```{r echo=FALSE, Multivariate_Plots, fig.width=13, fig.height=13}
+
+ggplot(aes(x=sulphates,y=alcohol,size=factored.quality),data=df)+
+      geom_point(alpha=0.2)+theme_bw()
+
+
+ggplot(aes(x=volatile.acidity,y=alcohol,size=factored.quality),data=df)+
+      geom_point(alpha=0.5)
+
+ggplot(aes(x=densityDM3,y=alcohol, size=residual.sugar),data=df)+
+       geom_point(alpha=0.2)+
+       theme_bw()
 
 ```
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+I explored the relation with alcohol and sulphates. Its evident from the scatter plot that alcohol is a stronger of the two when it comes to affect quality. That was evident from cor matrix but its always good to see that visually.
+
+Volatile acidity and alcohol over quality seems fairly spread out. This suggests that both of them have roughly even say in the quality of wine. Interesting thing to note is that there isn't even a single data point where volatile acidity is high > 1.0 and alcohol is low < 10% that is a high quality wine, which suggests that both alcohol and volatile acidity are pretty strong features and we seem to have a pretty reliable wine quality prediction once we combine the two. Atleast, we can easily predict the quality of wine if alcohol is low and volatile acidity is high and similarly when alcohol is high and volatile acidity is low.
 
 ### Were there any interesting or surprising interactions between features?
+
+Yes, to see water density having an inverse relation with alcohol was interesting, along with residual.sugar. However for the given sample, the contribution of residual sugar is not to be trusted, given it has so many outliers. Variable description says that density depends on alcohol and residual sugar. I am able to see an inverse relation with alcohol, however for residual sugar, it shows somewhat +ve relation with density, which is interesting.
+
+I also found an interesting relation with fixed acidity and density and have plotted it in the final plot section.
+
 
 ### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
 
@@ -280,7 +391,14 @@ And Quality showed moderate to strong negative relation with
 # Final Plots and Summary
 
 ### Plot One
-```{r echo=FALSE, Plot_One}
+```{r echo=FALSE, Plot_One, fig.width=13, fig.height=13}
+
+p1<-ggplot(aes(x=alcohol),data=df)+geom_density(aes(fill=df$factored.quality),alpha=0.5)
+p2<-ggplot(aes(x=volatile.acidity),data=df)+geom_density(aes(fill=df$factored.quality),alpha=0.5)
+p3<-ggplot(aes(x=sulphates),data=df)+geom_density(aes(fill=df$factored.quality),alpha=0.5)
+p4<-ggplot(aes(x=citric.acid),data=df)+geom_density(aes(fill=df$factored.quality),alpha=0.5)
+
+grid.arrange(p1,p2,p3,p4,ncol=2)
 
 ```
 
@@ -288,7 +406,13 @@ And Quality showed moderate to strong negative relation with
 
 
 ### Plot Two
-```{r echo=FALSE, Plot_Two}
+```{r echo=FALSE, Plot_Two, fig.width=13, fig.height=13}
+# Fixed Acidity VS densityDM
+
+ggplot(aes(x=densityDM3,y=fixed.acidity),data=df)+
+       geom_point(alpha=0.2)+
+       facet_wrap(~factored.quality)+
+       geom_smooth()+theme_bw()
 
 ```
 
@@ -296,7 +420,19 @@ And Quality showed moderate to strong negative relation with
 
 
 ### Plot Three
-```{r echo=FALSE, Plot_Three}
+```{r echo=FALSE, Plot_Three, fig.width=13, fig.height=13}
+
+p1 <- ggplot(aes(x=pH),data=df)+
+  geom_point(aes(y=citric.acid),alpha=0.2)+
+ facet_wrap(~factored.quality) 
+p2 <- ggplot(aes(x=pH),data=df)+
+     geom_point(aes(y=volatile.acidity),color='orange',alpha=0.2)+
+     facet_wrap(~factored.quality) 
+p3 <- ggplot(aes(x=pH),data=df)+
+      geom_point(aes(y=log(fixed.acidity)),color='blue',alpha=0.2)+
+       facet_wrap(~factored.quality) 
+
+grid.arrange(p1,p2,p3,ncol=3)
 
 ```
 
