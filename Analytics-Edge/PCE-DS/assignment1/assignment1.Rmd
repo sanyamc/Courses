@@ -1,0 +1,49 @@
+---
+title: "Assignment"
+author: "Sanyamc"
+date: "Wednesday, March 30, 2016"
+output: html_document
+---
+
+# Clear Workspace
+rm(list=ls())
+# Clear Console:
+cat("\014")
+
+
+Review the patterns described in DataScience01a.R and use R to get the Indian Liver Patient Dataset
+from the UCI machine learning repository
+
+
+```{r}
+url <- "http://archive.ics.uci.edu/ml/machine-learning-databases/00225/Indian%20Liver%20Patient%20Dataset%20(ILPD).csv"
+
+ILPD <-read.csv(url,header=FALSE,stringsAsFactors=FALSE)
+```
+
+- Gather 11 column names from http://archive.ics.uci.edu/ml/datasets/ILPD+(Indian+Liver+Patient+Dataset) 
+and add headers to the data frame.
+- Observe first 6 rows of data frame.
+
+```{r}
+a.headers = c("Age","Gender","TB","DB","Alkphos","Sgpt","Sgot","TP","ALB","A/G","Selector")
+names(ILPD) = a.headers
+head(ILPD)
+
+```
+
+Review the patterns described in DataScience01a.R. Write code to determine the mean, median,
+and standard deviation (sd) of each column and present their values in the console. Some
+calculations may fail. Where applicable, fix the failures by using na.rm = TRUE. Type ?median to see
+how.
+
+
+```{r}
+summary(ILPD)
+sapply(ILPD,mean,na.rm=TRUE)
+sapply(ILPD,median,na.rm=TRUE)
+sapply(ILPD,sd,na.rm=TRUE)
+
+```
+
+
