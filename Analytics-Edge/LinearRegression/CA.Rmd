@@ -1,0 +1,54 @@
+---
+title: "Crime-Analysis"
+author: "Sanyamc"
+date: "Monday, July 20, 2015"
+output: html_document
+---
+Lets analyze some data here.
+
+```{r}
+
+baltimore = read.csv('E:/github/Courses/Analytics-Edge/DataSets/baltimore.csv')
+boston = read.csv('E:/github/Courses/Analytics-Edge/DataSets/boston.csv')
+
+names(baltimore)
+names(boston)
+
+boston$date= as.Date(boston$FROMDATE,'%m/%d/%Y')
+baltimore$date= as.Date(baltimore$CrimeDate,'%m/%d/%Y')
+
+baltimoreSub = subset(baltimore,baltimore$date>as.Date("2012-06-15"))
+baltimoreSub = subset(baltimoreSub,baltimoreSub$date<as.Date("2015-06-17"))
+              
+
+```
+
+Now lets see if the crime increases or decreases for the give dates
+
+```{r}
+library('ggplot2')
+
+ggplot(aes(x=date),data=baltimoreSub)+geom_histogram(fill='orange',color='yellow')+ggtitle('Baltimore')
+ggplot(aes(x=date),data=baltimoreSub)+geom_histogram(fill='orange',color='yellow')+ggtitle('Boston')
+
+
+```
+
+Lets take a look at crime divided by area
+```{r}
+
+ggplot(aes(x=Neighborhood),data=baltimoreSub)+geom_histogram(fill='orange',color='yellow')+ggtitle('Baltimore')
+
+ggplot(aes(x=REPTDISTRICT),data=boston)+geom_histogram(fill='orange',color='yellow')+ggtitle('Boston')
+
+```
+
+```{r}
+
+ggplot(aes(x=DAY_WEEK),data=boston)+geom_histogram(fill='orange',color='yellow')+ggtitle('Boston')
+```
+
+Most crimes happen on fridays and least on Sundays.
+
+
+

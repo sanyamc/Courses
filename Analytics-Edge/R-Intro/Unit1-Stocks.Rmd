@@ -19,11 +19,11 @@ Lets take a look at summary of stock prices for these companies.
 
 
 ```{r}
-ibm=read.csv('AnalyticsEdge/IBMStock.csv')
-ge=read.csv('AnalyticsEdge/gestock.csv')
-png=read.csv('AnalyticsEdge/procterGamblestock.csv')
-boeing=read.csv('AnalyticsEdge/boeingstock.csv')
-coke=read.csv('AnalyticsEdge/cocacolastock.csv')
+ibm=read.csv('IBMStock.csv')
+ge=read.csv('gestock.csv')
+png=read.csv('procterGamblestock.csv')
+boeing=read.csv('boeingstock.csv')
+coke=read.csv('cocacolastock.csv')
 
 ibm$Date=as.Date(ibm$Date,'%m/%d/%y')
 ge$Date=as.Date(ge$Date,'%m/%d/%y')
@@ -47,13 +47,13 @@ Checkout the following ***line plot*** below
 - Note the ***vertical line***
 ```{r}
 
-ggplot(aes(x=Date,y=StockPrice),data=coke)+geom_line(data=png,aes(color='PnG'))+geom_line(data=ibm,aes(color='IBM',colour='black'))+geom_line(data=boeing,aes(color='Boeing'))+geom_line(data=ge,aes(color='GE'))+geom_line(aes(color='Coke'))+scale_x_date(breaks="2 year")+geom_vline(xintercept=as.numeric(as.Date('2000-03-01')),alpha=1/4,linetype=2)
+ggplot(aes(x=Date,y=StockPrice),data=coke)+geom_line(aes(color='Coke'))+geom_line(data=png,aes(color='PnG'))+geom_line(data=ibm,aes(color='IBM',colour='black'))+geom_line(data=boeing,aes(color='Boeing'))+geom_line(data=ge,aes(color='GE'))+scale_x_date(breaks="2 year")+geom_vline(xintercept=as.numeric(as.Date('2000-03-01')),alpha=1/4,linetype=2)
 
 ```
 Lets observe the data withing 5 year period.
 ```{r}
 
-ggplot(aes(x=Date,y=StockPrice),data=coke)+geom_line(data=png,aes(color='PnG'))+geom_line(data=ibm,aes(color='IBM',colour='black'))+geom_line(data=boeing,aes(color='Boeing'))+geom_line(data=ge,aes(color='GE'))+geom_line(aes(color='Coke'))+scale_x_date(limits=c(as.Date("2004-01-01"),as.Date("2006-01-01")))+geom_vline(xintercept=as.numeric(as.Date('2000-03-01')),alpha=1/4,linetype=2)+scale_y_discrete(breaks=seq(0,200,5))
+ggplot(aes(x=Date,y=StockPrice),data=coke)+geom_line(data=png,aes(color='PnG'))+geom_line(data=ibm,aes(color='IBM',colour='black'))+geom_line(data=boeing,aes(color='Boeing'))+geom_line(data=ge,aes(color='GE'))+geom_line(aes(color='Coke'))+scale_x_date(limits=c(as.Date("2004-01-01"),as.Date("2005-12-01")))+geom_vline(xintercept=as.numeric(as.Date('2000-03-01')),alpha=1/4,linetype=2)+scale_y_discrete(breaks=seq(0,200,5))
 
 ```
 

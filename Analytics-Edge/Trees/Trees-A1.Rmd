@@ -1,0 +1,183 @@
+---
+title: "Trees-A1"
+author: "Sanyamc"
+date: "Monday, July 06, 2015"
+output: html_document
+---
+```{r}
+
+q <- read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\gerber.csv")
+str(q)
+q$hawthorne=factor(q$hawthorne)
+q$civicduty=factor(q$civicduty)
+q$neighbors=factor(q$neighbors)
+q$control=factor(q$control)
+q$self=factor(q$self)
+
+summary(q)
+
+table(q$hawthorne,q$voting)
+table(q$civicduty,q$voting)
+table(q$neighbors,q$voting)
+table(q$self,q$voting)
+
+# As per assignment, lets build the model using the data.
+
+model=glm(voting~hawthorne+civicduty+neighbors+self,data=q,family=binomial)
+summary(model)
+
+prediction = predict(model,type="response")
+
+table(q$voting,prediction>0.3) # accuracy is .541
+
+table(q$voting,prediction>0.5)
+
+
+CARTmodel = rpart(voting ~ civicduty + hawthorne + self + neighbors, data=q) # note that we are using trees to build Regression trees
+
+library(rpart.plot)
+
+prp(CARTmodel)
+
+cm = rpart(voting ~ civicduty + hawthorne + self + neighbors+sex, data=q,cp=0.0) # note that we are using trees #to build Regression trees
+
+
+
+prp(cm)
+
+cm4 = rpart(voting~control+sex,data=q,cp=0.0)
+prp(cm4,digits=6)
+
+
+# lets create a logistic model for ablve
+
+m1 = glm(voting~control+sex,data=q)
+summary(m1)
+
+Possibilities = data.frame(sex=c(0,0,1,1),control=c(0,1,0,1))
+predict(m1, newdata=Possibilities, type="response")
+
+LogModel2 = glm(voting ~ sex + control + sex:control, data=q, family="binomial") # Notice var:var2 used to denote # if both vars are 1
+summary(LogModel2)
+
+predict(LogModel2, newdata=Possibilities, type="response")
+
+```
+
+##### Trees Assignment 2########################
+
+```{r,echo=FALSE}
+
+l = read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\letters_ABPR.csv")
+names(l)
+
+#isB variable
+l$isB = as.factor(l$letter=="B")
+
+set.seed(1000)
+spl = sample.split(l$isB, SplitRatio = 0.5)
+train = subset(l, spl==TRUE)
+test = subset(l, spl==FALSE)
+
+summary(test)
+
+# build a tree for isB
+
+cartb = rpart(isB~.-letter,data=train,method="class")
+
+summary(cartb)
+
+predictions = predict(cartb,newdata=test,type="class")
+prp(cartb)
+
+table(test$isB,predictions)
+
+## Random forest
+
+library(randomForest)
+set.seed(1000)
+
+forest = randomForest(isB~.-letter,data=train,method="class")
+
+pre = predict(forest,newdata=test,type="class")
+table(test$isB,pre)
+
+
+```
+
+
+#### Multi-class classification problem
+
+```{r}
+
+l$letter = as.factor(l$letter)
+set.seed(2000)
+spl = sample.split(l$letter, SplitRatio = 0.5)
+train = subset(l, spl==TRUE)
+test = subset(l, spl==FALSE)
+
+summary(test)
+
+forest = randomForest(letter~.-isB,data=train,method="class")
+pre = predict(forest,newdata=test,type="class")
+table(test$letter,pre)
+
+
+
+```
+
+
+################ Assignment 3 Trees
+
+```{r}
+
+census = read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\census.csv")
+
+names(census)
+
+census$nativecountry = factor(census$nativecountry)
+census$relationship = factor(census$relationship)
+census$occupation = factor(census$occupation)
+census$sex = factor(census$sex)
+census$race = factor(census$race)
+
+set.seed(2000)
+spl = sample.split(census$over50k, SplitRatio = 0.6)
+train = subset(census, spl==TRUE)
+test = subset(census, spl==FALSE)
+
+logm = glm(over50k~.,data=train,family=binomial)
+
+pre = predict(logm,newdata=test,type="response")
+
+table(test$over50k,pre>0.5)
+
+tr = rpart(over50k~.,data=train,method="class")
+prp(tr)
+pre = predict(tr,newdata=test,type="class")
+table(test$over50k,pre)
+
+
+#### Random forest on small sample set
+
+set.seed(1)
+
+trainSmall = train[sample(nrow(train), 2000), ]
+
+forest = randomForest(over50k~.,data=trainSmall)
+pre =predict(forest,newdata=test,type="class")
+
+table(test$over50k,pre)
+
+
+vu = varUsed(forest, count=TRUE)
+
+vusorted = sort(vu, decreasing = FALSE, index.return = TRUE)
+
+dotchart(vusorted$x, names(forest$forest$xlevels[vusorted$ix]))
+
+varImpPlot(forest) # checking impurity
+
+```
+
+

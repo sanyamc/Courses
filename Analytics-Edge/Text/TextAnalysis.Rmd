@@ -1,0 +1,17 @@
+---
+title: "TextAnalysis"
+author: "Sanyamc"
+date: "Friday, July 10, 2015"
+output: html_document
+---
+
+
+```{r}
+
+tw <- read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\todelete\\tweets.csv")
+str(tw)
+
+install.packages("tm")
+library("tm")
+install.packages("SnowballC")
+library("SnowballC")

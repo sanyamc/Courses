@@ -1,0 +1,161 @@
+---
+title: "LogisticRegression"
+author: "Sanyamc"
+date: "Thursday, May 07, 2015"
+output: html_document
+---
+
+## Logistic Regression ##
+
+Lecture starts with creating a model to replace an expert in predicting poor quality care from claims data.
+
+Logistic regression is an extension of linear regression which can be used to depict dependent variables which are categorical. 
+For e.g. Quality of care (poor or good)
+
+
+```{r}
+
+q <- read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\quality.csv")
+str(q)
+
+table(q$PoorCare)
+
+```
+
+If we remember, we had a baseline model in linear regression, the mean value. In this case we take the value which is most occuring i.e. assume that every one is receiving good care, based on the given data, that will give 75% of accuracy.
+
+Given from the data that dependent variable is Quality Care, we can use techniques from Linear regression to assess the quality of care but then we would have to round the output variable as quality care is a categorical variable.
+
+Equation for Logistic regression could be represented as P(y=1) = 1/ (1+e^-(b0+b1x1.....bkxk))
+
+If we *logit* the logistic regression , what we get looks like the linear regression. The bigger the logit, bigger is P(y=1). A +ve beta value increases the logit and increases the Odds of one.
+
+Refer to the slides for more info on equation for ODDS.
+
+The variables in the dataset quality.csv are as follows:
+
+.MemberID numbers the patients from 1 to 131, and is just an identifying number.
+.InpatientDays is the number of inpatient visits, or number of days the person spent in the hospital.
+.ERVisits is the number of times the patient visited the emergency room.
+.OfficeVisits is the number of times the patient visited any doctor's office.
+.Narcotics is the number of prescriptions the patient had for narcotics.
+.DaysSinceLastERVisit is the number of days between the patient's last emergency room visit and the end of the study period (set to the length of the study period if they never visited the ER). 
+.Pain is the number of visits for which the patient complained about pain.
+.TotalVisits is the total number of times the patient visited any healthcare provider.
+.ProviderCount is the number of providers that served the patient.
+.MedicalClaims is the number of days on which the patient had a medical claim.
+.ClaimLines is the total number of medical claims.
+.StartedOnCombination is whether or not the patient was started on a combination of drugs to treat their diabetes (TRUE or FALSE).
+.AcuteDrugGapSmall is the fraction of acute drugs that were refilled quickly after the prescription ran out.
+.PoorCare is the outcome or dependent variable, and is equal to 1 if the patient had poor care, and equal to 0 if the patient had good care.
+
+
+
+
+***Now we need to split the dataset into train and test data set.***
+
+Below package caTools also reads and write GIF images.
+
+```{r}
+
+install.packages('caTools')
+library('caTools')
+
+set.seed(88)
+split = sample.split(q$PoorCare,SplitRatio=0.75)     
+
+qTrain = subset(q,split==TRUE)
+qTest = subset(q,split==FALSE)
+
+qualityLog = glm(PoorCare ~ OfficeVisits+Narcotics,data=qTrain,family=binomial)
+
+summary(qualityLog)
+
+PredictTrain = predict(qualityLog,type="response")
+
+summary(PredictTrain)
+
+tapply(PredictTrain,qTrain$PoorCare,mean)
+
+```
+
+Split function balances the dependent variable too, it gives an array with T,False #suggesting we should keep an obs in training or test set.
+Family=binomial tells the function to run logistic regression.
+
+In above summary AIC is like R squared and it accounts for number of variables used compared to number of observations. The preferred model is the one with MINUMUM AIC.
+
+We did the tapply and saw that on average we predicted poor care with 44% probability as opposed to 19% good care even though Good care is way higher in number. This is certainly a good sign.
+
+Outcome of Logistic regression is a probability, often we want to make a binary prediction based on a *threshold value*
+
+
+If there is no preference then we can pick t=0.5
+
+Sensitivity = TP/(TP+FN) this is recall
+Specificity = TN/(TN+FP) this is also known as true negative rate
+Precision = TP/(TP+FP)
+
+Lets build the confusion matrix in R
+
+```{r}
+
+table(qTrain$PoorCare,PredictTrain>0.5)
+
+```
+
+As we can see from above that sensitivity = 3/25 = .12
+Specificity = 73/74 = 0.9864
+
+If we increase the threashold, either senisitvity increases or decreases. So how do we decide what to pick?
+
+ROC or Receiver operator Characteristic Curve can help us identify that. Its the curve between True positive Rate(Sensitivity) vs False Positive Rate(1- True Negative rate)
+
+As expected, we should pick threshold which gives best tradeoff for our scenario.
+
+TO GENERATE ROC Curve we need to install ROCR package
+
+```{r}
+install.packages("ROCR")
+
+library(ROCR)
+
+ROCRpred = prediction(PredictTrain,qTrain$PoorCare)
+ROCRperf = performance(ROCRpred,"tpr","fpr")
+plot(ROCRperf,colorize=TRUE)
+
+# Adding threshold value
+
+plot(ROCRperf,colorize=TRUE,print.cutoffs.at=seq(0,1,0.1),text.adj=c(-0.2,1.7))
+
+```
+
+#### Measuring Quality of Prediction
+
+As always the multicoliniearity is always the problem. So we should intuitively look at the variables. We should also look at AUC or Area under curve. It gives an absolute measure of quality and less affected by various benchmarks. So whats a good AUC? should be better than 0.5 or pure guessing :)
+
+Other means is Confusion matrix.
+
+Accuracy = (TN+TP)/N 
+Error Rate = FP+FN / N
+
+Now lets make predictions on our test data
+
+```{r}
+predictTest = predict(qualityLog,type="response",newdata = qTest)
+
+table(qTest$PoorCare,predictTest>0.3)
+
+###ROC
+
+ROCRpredTest = prediction(predictTest,qTest$PoorCare)
+auc = as.numeric(performance(ROCRpredTest,"auc")@y.values)
+
+```
+
+
+So to Summarize:
+
+1. We built a model of about 78% accuracy to predict which patients are receiving poor quality care.
+
+So models can integrate assessment of multiple experts unbiased and unemotionally.
+

@@ -86,7 +86,7 @@ Starting with the crime data set provided for the city of Chicago for property t
 - Extract Weekday and Month from the date and convert the date to dateconvert.Checkout the **weekdays** and **months** functions.
 
 ```{r}
-mtv=read.csv('AnalyticsEdge/mvtWeek1.csv')
+mtv=read.csv('E:\\github\\Courses\\Analytics-Edge\\DataSets\\mvtWeek1.csv')
 str(mtv)
 summary(mtv)
 DateConvert = as.Date(strptime(mtv$Date, "%m/%d/%y %H:%M"))

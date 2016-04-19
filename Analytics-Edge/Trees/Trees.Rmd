@@ -1,0 +1,127 @@
+---
+title: "Trees"
+author: "Sanyamc"
+date: "Monday, June 29, 2015"
+output: html_document
+---
+
+
+### Trees
+
+Supreme court consists of 9 justices appointed by President. They are usually distinguished judges and often are very controversial.
+
+Can the analytical model outperform the experts? lets find out using CART classifaction and Regression trees.
+
+We are gonna use CART and Random forest method to see if it can outperform the Supreme court cases.
+
+In the dataset the justices were same across 7 years.
+
+Dependent variable = Did justice Steven reverse (1) or stayed the lower court variable.
+
+Logistic regressions results are hard to interpret.
+
+In R the yes response is always to the left and NO is to the right.
+
+So the important question is, How many splits should be there?
+Well in R, it is controlled by minbuckets param which is the number of points in a split. If it is too small, overfitting may occur, or too large then model would be general.
+
+We split the data and to predict we use threshold value in each subset and identify the accuracy of the model using ROC curve as we did in Logistic regression.
+
+```{r}
+
+q <- read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\stevens.csv")
+str(q)
+install.packages('caTools')
+library('caTools')
+
+library(caTools)
+set.seed(3000)
+spl = sample.split(q$Reverse, SplitRatio = 0.7)
+train = subset(q, spl==TRUE)
+test = subset(q, spl==FALSE)
+
+
+
+library(rpart.plot)
+
+tree = rpart(Reverse~Circuit+Issue+Petitioner+Respondent+LowerCourt+Unconst,data=train,minbucket=25,method="class")
+# In above case the method = class dictates the function to create a classification tree instead of a regression tree.
+
+# Spot Check:
+# Why are we building Classification tree, instead of regression tree.
+
+prp(tree)
+
+predictCart = predict(tree,newdata=test,type="class") # Note the type, no type gives te probability
+
+#Lets build the confusion matrix
+
+table(test$Reverse,predictCart)
+
+predictROC = predict(tree,newdata=test)
+library(ROCR)
+
+pred = prediction(predictROC[,2],test$Reverse)
+
+perf = performance(pred,"tpr","fpr")
+
+plot(perf)
+
+as.numeric(performance(pred,"auc")@y.values)
+
+
+```
+
+As we can see from above, the predictCart output is very different from logistic or linear regression, in a snese that its very interpretable.
+
+### Random Forest
+
+Random forest increases accuracy by creating many CART trees. Hence it also decreases interpretability. In Random Forest, each tree votes for an outcome and outcome with majority votes gets selected
+
+How do we build RF?
+- Trees are choosen with random set of independent variables
+- Sample(training data) is choosen randomly WITH replacement and repetition.
+
+Since each tree has different data and vars resulting in set of trees hence forest.
+
+Sample size of obs is controlled by nodeSize, ntree controls the number of trees (larger it is accurate it is slower it is)
+
+
+```{r}
+install.packages("randomForest")
+library(randomForest)
+set.seed(200)
+spl = sample.split(q$Reverse,SplitRatio=0.7)     
+
+train = subset(q,spl==TRUE)
+test=subset(q,spl==FALSE)
+train$Reverse = factor(train$Reverse)
+test$Reverse = factor(test$Reverse)
+forest = randomForest(Reverse~Circuit+Issue+Petitioner+Respondent+LowerCourt+Unconst,data=train,nodesize=25,ntrees=200)
+
+# to avoid the warning above lets change the output to factor
+
+
+
+pred = predict(forest,newdata=test)
+table(test$Reverse,pred)
+
+```
+#### Cross Validation
+```{r}
+install.packages("caret")
+install.packages("e1071")
+
+library(caret)
+library(e1071)
+
+numFolds = trainControl(method='cv',number=10)
+cpGrid=expand.grid(.cp=seq(.01,.5,.01)) # remember the grid from Python/scikit learn
+
+
+
+train(Reverse~Circuit+Issue+Petitioner+Respondent+LowerCourt+Unconst,data=train,method='rpart',trControl=numFolds,tuneGrid=cpGrid)
+
+```
+
+

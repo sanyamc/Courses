@@ -1,0 +1,117 @@
+---
+title: "LogisticRegression-A1"
+author: "Sanyamc"
+date: "Monday, June 29, 2015"
+output: html_document
+---
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+
+songs <- read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\songs.csv")
+str(songs)
+
+
+
+```
+
+Here's a detailed description of the variables:
+.year = the year the song was released
+.songtitle = the title of the song
+.artistname = the name of the artist of the song
+.songID and artistID = identifying variables for the song and artist
+.timesignature and timesignature_confidence = a variable estimating the time signature of the song, and the confidence in the estimate
+. loudness = a continuous variable indicating the average amplitude of the audio in decibels
+. tempo and tempo_confidence = a variable indicating the estimated beats per minute of the song, and the confidence in the estimate
+. key and key_confidence = a variable with twelve levels indicating the estimated key of the song (C, C#, . . ., B), and the confidence in the estimate
+. energy = a variable that represents the overall acoustic energy of the song, using a mix of features such as loudness
+.pitch = a continuous variable that indicates the pitch of the song
+. timbre_0_min, timbre_0_max, timbre_1_min, timbre_1_max, . . . , timbre_11_min, and timbre_11_max = variables that indicate the minimum/maximum values over all segments for each of the twelve values in the timbre vector (resulting in 24 continuous variables)
+.Top10 = a binary variable indicating whether or not the song made it to the Top 10 of the Billboard Hot 100 Chart (1 if it was in the top 10, and 0 if it was not)
+
+
+
+Splitting the data in training and testing set:
+```{r}
+songsTest = subset(songs,songs$year==2010)
+songsTrain = subset(songs,songs$year!=2010)
+
+```
+
+As expected, our outcome variable is Top10, we are trying to predict weather a song will make it to top10 or not.
+
+
+```{r}
+# We care only about numerical variables:
+nonvars = c("year","songtitle","artistname","songID","artistID")
+
+songsTrain = songsTrain[,!(names(songsTrain)%in%nonvars)]
+songsTest = songsTest[,!(names(songsTest)%in%nonvars)]
+
+songsLog1 = glm(Top10~ .,data=songsTrain,family="binomial")
+
+summary(songsLog1)
+
+# Note that we can only do the -sign for numerical variables
+
+songsLog2 = glm(Top10~ . -loudness,data=songsTrain,family="binomial")
+summary(songsLog2)
+
+
+songsLog3 = glm(Top10~ . -energy,data=songsTrain,family="binomial")
+summary(songsLog3)
+
+predictTest = predict(songsLog3,type="response",newdata = songsTest)
+
+table(songsTest$Top10,predictTest>0.45)
+accuracy = 328/373
+
+
+
+
+```
+
+### Parole Dataset
+
+male: 1 if the parolee is male, 0 if female
+.race: 1 if the parolee is white, 2 otherwise
+.age: the parolee's age (in years) when he or she was released from prison
+.state: a code for the parolee's state. 2 is Kentucky, 3 is Louisiana, 4 is Virginia, and 1 is any other state. The three states were selected due to having a high representation in the dataset.
+.time.served: the number of months the parolee served in prison (limited by the inclusion criteria to not exceed 6 months).
+.max.sentence: the maximum sentence length for all charges, in months (limited by the inclusion criteria to not exceed 18 months).
+.multiple.offenses: 1 if the parolee was incarcerated for multiple offenses, 0 otherwise.
+.crime: a code for the parolee's main crime leading to incarceration. 2 is larceny, 3 is drug-related crime, 4 is driving-related crime, and 1 is any other crime.
+.violator: 1 if the parolee violated the parole, and 0 if the parolee completed the parole without violation.
+
+
+```{r}
+
+parole <- read.csv("E:\\github\\Courses\\Analytics-Edge\\DataSets\\parole.csv")
+summary(parole)
+
+parole$state = factor(parole$state)
+parole$crime = factor(parole$crime)
+
+set.seed(144)
+
+library(caTools)
+
+split = sample.split(parole$violator, SplitRatio = 0.7)
+
+train = subset(parole, split == TRUE)
+
+test = subset(parole, split == FALSE)
+
+vlLog = glm(violator~ .,data=train,family="binomial")
+
+summary(vlLog)
+
+## To compute the odds = e^coeffiecient of the variable
+
+
+
+
+```
+

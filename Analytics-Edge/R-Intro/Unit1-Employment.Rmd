@@ -5,9 +5,9 @@ date: "Tuesday, April 14, 2015"
 output: html_document
 ---
 ```{r}
-cps<-read.csv('AnalyticsEdge/CPSData.csv')
-mac<-read.csv('AnalyticsEdge/MetroAreaCodes.csv')
-cc<-read.csv('AnalyticsEdge/CountryCodes.csv')
+cps<-read.csv('CPSData.csv')
+mac<-read.csv('MetroAreaCodes.csv')
+cc<-read.csv('CountryCodes.csv')
 
 summary(cps)
 str(cps)
@@ -32,7 +32,7 @@ table(cps$Citizenship)
 Whats the distribution of Race w.r.t Hispanic
 
 ```{r}
-table(cps$Race,table$Hispanic)
+table(cps$Race,cps$Hispanic)
 ```
 
 Evaluate Missing values
@@ -79,7 +79,7 @@ table(cps$MetroArea)
 
 sort(tapply(cps$Hispanic,cps$MetroArea,mean))
 
-tapply(cps$Race=='Asian',cps$MetroArea,mean)
+sort(tapply(cps$Race=='Asian',cps$MetroArea,mean))
 
 sort(tapply(cps$Education=="No high school diploma",cps$MetroArea,mean,na.rm=TRUE))
 
