@@ -14,13 +14,13 @@ KMeans <- function(observations = sampleObservations, clusterCenters = centersGu
     # For each observation find the label of its closest cluster center
     currentLabels <- findLabelOfClosestCluster(observations, clusterCenters)
     # Plot observations and clusterCenters
-   # ClusterPlot(observations, clusterCenters, currentLabels)
+    ClusterPlot(observations, clusterCenters, currentLabels)
     # If there was no change in cluster labels, then break
     if (identical(currentLabels, previousLabels)) break
     # For each cluster of observations determine its center
     clusterCenters <- calculateClusterCenters(observations, currentLabels)
     # Plot observations and clusterCenters
-  #  ClusterPlot(observations, clusterCenters, currentLabels)
+    ClusterPlot(observations, clusterCenters, currentLabels)
     # remember currentLabels before currentLabels is re-assigned in the next iteration
     previousLabels <- currentLabels
   } # end of the for loop

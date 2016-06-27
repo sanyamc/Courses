@@ -1,0 +1,53 @@
+Answer1:
+
+a) Model has better performance metrics on training data because that is what is used to create the model. Loosly put; model is an equation 
+representing points in space, the points which were used to derive equation will solve the equation than unseen points(test data).
+
+b) We randomize the data selection into training and testing to create a model and not handpick the data for model. This will eliminate 
+   any bias that might occur due to manual selection.
+
+c) Model performance usually gives hints; for e.g. if model is working too well than its training data or there is a highly correlated or 
+   a predictive column which determines outcome. If later is the case then we don't really need model and just use that column.
+
+
+Answer 2:
+                 Assuming that model predicts if a person is healthy or not healthy
+Confusion matrix
+              Actual-Healty  Actual-NotHealthy
+        Model-Healthy   85   3
+        Model-Ill        5   7
+
+TP=40
+FP=100
+FN=10
+TN=850
+
+Sensitivity/Recall = 85/90
+
+Secificity = 7/10 
+
+Precision = 85/88
+
+Accuracy = 92/100
+
+Answer 3: Assuming TPR on y axis and FPR on x axis
+a) y=1,x=1 represents threshold of 0
+b) y=0,x=0 represents threshold of 1
+c) x=0.5,y=0.5 represents threshold of 0.5
+
+Answer 4:
+a)
+TPR = 0.8, FPR =0.4, Accuracy = 0.7
+By Accuracy, TP+TN = 0.7*1000 = 700, FP+FN=300
+By TPR, TP/TP+FN = 0.8, TP=4FN
+By FPR, FP/FP+TN = 0.4, TN = 0.6FP/0.4
+
+OR 300-FP = 0.25TP
+AND700-TP=1.5FP
+
+Solving the above equation, following is CM
+
+TP  FP    400  200
+FN  TN    100  300
+
+b) Threshold is <=0.5

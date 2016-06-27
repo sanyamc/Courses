@@ -31,7 +31,7 @@ TrainStudents <-StudentsSplit$trainingData
 # Create logistic regression
 glm_model <- glm(formula,family="binomial",data=TrainStudents)
 # ********** add code here
-predictedProbabilities_glm <- predict(glm_model,newdata=TestStudents,type="response")
+predictedProb_glm <- predict(glm_model,newdata=TestStudents,type="response")
 # Predict the outcomes for the test data. (predict type="response")
 # ********** add code here
 ###################################################
@@ -47,26 +47,37 @@ reposURL <- "http://cran.rstudio.com/"
 if (!require("e1071")) {install.packages("e1071", dep=TRUE, repos=reposURL)} else {" e1071 is already installed "}
 # Now that the package is installed, we want to load the package so that we can use its functions
 library(e1071)
-
+# adding a comment
 # Create Naive Bayes model
-# ********** add code here
+nb_model <- naiveBayes(formula,data=TrainStudents,type="raw")
 # Predict the outcomes for the test data. (predict type="raw")
-# ********** add code here
+predictedProb_nb <- predict(nb_model,newdata=TestStudents,type="raw")
+
 ###################################################
 
 # Confusion Matrices
 
 actual <- ifelse(TestStudents$CollegePlans, "Attend", "NotAttend")
-threshold = 0.5
+threshold = 0.7
+
+accuracy <- function(predicted, actual)
+    {
+    eq <- length(predicted[predicted == actual])
+    neq <- length(predicted[predicted != actual])
+    return(eq / (eq + neq))
+    }
+
 
 #Confusion Matrix for Logistic Regression
 # convert the predicted probabilities to predictions using a threshold
-# ********** add code here
+# 
 print(" ")
 print(" -------------------------------- ")
 print("Confusion Matrix for Logistic Regression")
-predicted.GLM <- ifelse(predictedProbabilities_glm > threshold, "Attend", "NotAttend")
+predicted.GLM <- ifelse(predictedProb_glm > threshold, "Attend", "NotAttend")
 # create a table to compare predicted values to actual values
+print(table(predicted.GLM, actual))
+print(accuracy(predicted.GLM, actual))
 # ********** add code here
 
 #Confusion Matrix for Naive Bayes
@@ -76,7 +87,13 @@ print(" ")
 print(" -------------------------------- ")
 print("Confusion Matrix Naive Bayes")
 # create a table to compare predicted values to actual values
-# ********** add code here
+predicted.NB <- ifelse(predictedProb_nb[,2] > threshold, "Attend", "NotAttend")
+# create a table to compare predicted values to actual values
+print(table(predicted.NB, actual))
+print(accuracy(predicted.NB, actual))
+
+
+
 ###################################################
 
 # Bad Partition; threshold = 0.5
@@ -107,19 +124,19 @@ print("Confusion Matrix Naive Bayes")
 # "Confusion Matrix for Logistic Regression"
 #            Actual
 # Predicted   Attend NotAttend
-# Attend      *****    *****   add results here
-# NotAttend   *****    *****   add results here 
+# Attend      679    209   add results here
+# NotAttend   278    1714   add results here 
 # Accuracy defined as fraction of predictions that are correct
-# Accuracy:   **************   add results here
+# Accuracy:   83.09%
 #
 # --------------------------------
 # "Confusion Matrix Naive Bayes"
 #            Actual
 # Predicted   Attend NotAttend
-# Attend      *****    *****   add results here
-# NotAttend   *****    *****   add results here
+# Attend      547    206   add results here
+# NotAttend   410    1717   add results here
 # Accuracy defined as fraction of predictions that are correct
-# Accuracy:   **************   add results here
+# Accuracy:   78.6%  add results here
 
 # Fast Partition; threshold = 0.5
 #
@@ -127,19 +144,19 @@ print("Confusion Matrix Naive Bayes")
 # "Confusion Matrix for Logistic Regression"
 #            Actual
 # Predicted   Attend NotAttend
-# Attend      *****    *****   add results here
-# NotAttend   *****    *****   add results here
+# Attend      691    227   add results here
+# NotAttend   262    1715  add results here
 # Accuracy defined as fraction of predictions that are correct
-# Accuracy:   **************   add results here
+# Accuracy:   83.10%   add results here
 #
 # --------------------------------
 # "Confusion Matrix Naive Bayes"
 #            Actual
 # Predicted   Attend NotAttend
-# Attend      *****    *****   add results here
-# NotAttend   *****    *****   add results here
+# Attend      572    211   add results here
+# NotAttend   381    1731   add results here
 # Accuracy defined as fraction of predictions that are correct
-# Accuracy:   **************   add results here
+# Accuracy:   79.55%   add results here
 
 # Exact Partition;  threshold = 0.7
 #
@@ -147,16 +164,16 @@ print("Confusion Matrix Naive Bayes")
 # "Confusion Matrix for Logistic Regression"
 #            Actual
 # Predicted   Attend NotAttend
-# Attend      *****    *****   add results here
-# NotAttend   *****    *****   add results here
+# Attend      471    72   add results here
+# NotAttend   486    1851   add results here
 # Accuracy defined as fraction of predictions that are correct
-# Accuracy:   **************   add results here
+# Accuracy:   80.62%   add results here
 #
 # --------------------------------
 # "Confusion Matrix Naive Bayes"
 #            Actual
 # Predicted   Attend NotAttend
-# Attend      *****    *****   add results here
-# NotAttend   *****    *****   add results here
+# Attend      393    76   add results here
+# NotAttend   564    1847   add results here
 # Accuracy defined as fraction of predictions that are correct
-# Accuracy:   **************   add results here
+# Accuracy:   77.78%   add results here
