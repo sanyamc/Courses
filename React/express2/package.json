@@ -1,0 +1,34 @@
+{
+  "name": "express-app1",
+  "version": "0.0.0",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "5.7.1"
+  },
+  "description": "expressApp",
+  "author": {
+    "name": "sanyamc",
+    "email": ""
+  },
+  "dependencies": {
+    "express": "^4.9.8",
+    "react": "^15.0.2",
+    "react-bootstrap": "^0.29.4",
+    "react-dom": "^15.0.2",
+    "react-nvd3": "^0.5.7",
+    "react-redux": "^4.4.5",
+    "react-router": "^2.4.0",
+    "redux": "^3.5.2",
+    "serve-favicon": "~2.1.3",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "webpack": "^1.13.0"
+  }
+}

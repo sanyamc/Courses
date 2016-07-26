@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "jsx": "react",
+        "target": "es2015",
+        "experimentalDecorators": true,
+        "module": "commonjs",
+        "moduleResolution": "node"
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

@@ -1,0 +1,46 @@
+﻿//Script GUID:d11b36ec-726f-4637-9369-5b78dfee792d
+//Used for tracking history
+[SCRIPT:MAXDOP=0]
+
+
+//appView =
+//    VIEW @"/shares/asimov.prod.data/PublicPartner/Processed/ChakraJavaScript/DevTools/v1/WindowsAppUsage.view"
+//    PARAMS
+//    (
+//        StartDate = new DateTime(2016, 03, 01),
+//        EndDate = new DateTime(2016, 03, 10),
+//        OS = "All",
+//        UseAsimovClusters = true
+//    );
+//
+//SELECT DISTINCT Publisher
+//FROM appView
+//WHERE Activity=="VisualStudioCode";
+
+//regionsMonthlyInput = SSTREAM
+//    SPARSE STREAMSET "/shares/asimov.prod.data/PublicPartner.Processed.ChakraJavaScript/DevTools/v1/Aggregated/Monthly"
+//PATTERN @"Regions_%Y_%m_%d.ss"
+//	RANGE __date=[ "2016-02-01","2016-03-31"  ];
+//
+//
+//SELECT *
+//FROM regionsMonthlyInput
+//WHERE Activity == "CMake";
+
+// profile the machines running VS-2012, VS-2013 and VS-2015
+//S Date:DateTime,DeviceId:string,AppId:string,AppKeyId:long,UserId:string,Activity:string,ProcessName:string,Build:int,OSBranch:string,OSName:string,Region:string,CountryName:string,EngagementDurationInMinutes:double,ProductName:string,AppVersion:string,Developer:string,Publisher:string,IsMSFTOwned:bool?,DurableDeviceId:string,IncludeInDeviceCounts:bool?,IsVirtualDevice:bool?,IsTestLab:bool?,OEMName:string,OEMModel:string,InternalPrimaryDiagonalDisplaySizeInInches:double?,TotalPhysicalRAM:int?,ProcessorCores:int?,MDC1DeviceFamily:string,MDC2FormFactor:string,IEVersion:string.
+
+
+
+
+//
+//regions = SSTREAM "/shares/asimov.prod.data/PublicPartner/Processed/ChakraJavaScript/DevTools/v1/Aggregated/Monthly/Regions_MonthlyTrend.ss";
+//
+//SELECT SUM(DevicesScaled) AS Total FROM regions WHERE Activity=="CMakeGUI" AND Month=="March 2016";
+
+
+stream =
+    SSTREAM "/my/VSWithHW.ss";
+
+SELECT TOP 10 *
+FROM stream;// WHERE (true) AND DeviceId!="g:";
