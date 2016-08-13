@@ -6,7 +6,7 @@ Below graph has following methods added for learning purposes:
 Unidirected vs directed
 In python we represent unidirected graph by having an edge for both the nodes to each other while directed will just have one edge.
 
-- Initialization with empty dict or with a dictionary
+- Initialization with empty dict or with a dictionary passed as an argument
 - Insert Vertex/Node method
 - Add edge between two nodes
 - Compute path, allpaths and shortest path between two nodes/vertex
@@ -28,8 +28,15 @@ class Graph(object):
     def __init__(self):
         self.root={}
 
-    #def insert(self,from,value):
+    def insertNode(self,node):
         # search for from node in the graph and then add value to iter
+         if node not in self.root:
+             self.root[node]=[]
+
+    def insertEdge(self,edge):
+        # an edge could be a set or tuple of two nodes
+
+    
 
 
     def searchPath(self,graph,start,to,path=[]):
@@ -65,7 +72,7 @@ class Graph(object):
         else:
             for node in graph[start]:                            
                 if node not in path:
-                    val=self.searchPath(self,graph,node,to,path)       # to take care of already covered nodes/cycles using this if so have an if which searches
+                    val=self.searchAllPath(graph,node,to,path)       # to take care of already covered nodes/cycles using this if so have an if which searches
                     if(val):
                         paths=paths+val        
         return paths
@@ -84,7 +91,7 @@ class Graph(object):
         else:
             for node in graph[start]:                            
                 if node not in path:# to take care of already covered nodes/cycles using this if so have an if which searches
-                    val=self.searchPath(self,graph,node,to,path)       
+                    val=self.searchShortestPath(graph,node,to,path)       
                     if(len(shortest)>0 and len(val)<len(shortest)):
                         shortest=val
                     elif(len(shortest)==0:
