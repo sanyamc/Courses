@@ -171,11 +171,14 @@ def reduce_puzzle(values):
     return values
 
 
-def solve(grid):
+def solve(grid_chars):
+    """
+    Expects a grid in characters
+    """
 
     # uses search to solve
      
-    return search(grid_values(grid))
+    return search(grid_values(grid_chars))
     pass
 
 def search(values):
@@ -210,7 +213,7 @@ if __name__ == '__main__':
 
    
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'     
-    display(solve(grid_values(diag_sudoku_grid)))
+    display(solve(diag_sudoku_grid))
 
     try:
         from visualize import visualize_assignments
