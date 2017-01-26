@@ -8,7 +8,6 @@ A: I think naked twins is a constraint we use to solve the sudoku puzzle. Like e
    For e.g. every box will have one of 9 choices and there are 81 boxes so search space would be around 9^81 combinations. 
    Trying every value in every box would be time consuming on a computer. Hence we use constraint propogation techniques with search to solve sudoku puzzle.
 
-   # @ToDo: show impact of nakedtwins on sudoku
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
 A: We used eliminate, only choice and optionally naked twins(uncomment in reduce_puzzle) to reduce the puzzle's problem space and then brute forced it with a search algorithm.
