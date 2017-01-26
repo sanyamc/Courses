@@ -1,0 +1,69 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": true,
+            "program": "C:\\Users\\sanyamc\\AppData\\Local\\Programs\\Python\\Python35-32\\python.exe",
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ],
+                        "args": [
+                "solution_test.py"
+            ]
+        },
+        {
+            "name": "Python Console App",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": true,
+             "program": "C:\\Users\\sanyamc\\AppData\\Local\\Programs\\Python\\Python35-32\\python.exe",
+            "externalConsole": true,
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit"
+            ],
+            "args": [
+                "solution_test.py"
+            ]
+        },
+        {
+            "name": "Django",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": true,
+            "program": "${workspaceRoot}/manage.py",
+            "args": [
+                "runserver",
+                "--noreload"
+            ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput",
+                "DjangoDebugging"
+            ]
+        },
+        {
+            "name": "Watson",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": true,
+            "program": "${workspaceRoot}/console.py",
+            "args": [
+                "dev",
+                "runserver",
+                "--noreload=True"
+            ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        }
+    ]
+}
